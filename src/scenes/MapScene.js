@@ -76,6 +76,7 @@ export default class MapScene extends Phaser.Scene {
     wallet.add([wb, this.add.image(-44, 0, 'glyph_btc'), headText(this, 6, 0, `${Save.data.sats}`, 8, P.cream)]);
 
     this.card = null;
+    this.input.on('pointerup', (p, over) => { if (!over.length && this.card && !this.driving) this.closeCard(); });
     const start = nextChapter() ?? CHAPTERS.find((c) => c.scene);
     if (start) this.time.delayedCall(500, () => this.select(start.id));
     applyFilm(this, { vignette: 1.1 });
@@ -106,7 +107,7 @@ export default class MapScene extends Phaser.Scene {
       for (let i = 0; i < 3; i++) c.add(this.add.image(-8 + i * 8, 13, 'rating_star').setScale(0.35).setTint(i < rec.stars ? hexNum(P.btc1) : 0x3a3458));
     }
     if (unlocked && !done) this.tweens.add({ targets: glow, scale: 0.9, alpha: 0.35, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
-    c.setSize(26, 26).setInteractive({ useHandCursor: true });
+    c.setSize(36, 36).setInteractive({ useHandCursor: true });   // generous touch target
     c.on('pointerup', () => { if (!this.driving) this.select(ch.id); });
     c.on('pointerover', () => this.tweens.add({ targets: c, scale: 1.15, duration: 120 }));
     c.on('pointerout', () => this.tweens.add({ targets: c, scale: 1, duration: 120 }));
@@ -121,8 +122,8 @@ export default class MapScene extends Phaser.Scene {
     this.card?.destroy();
     const unlocked = isUnlocked(id), built = !!ch.scene, rec = chapterRecord(id);
     // place the card on the side away from the pin
-    const cx = ch.map.x > W / 2 ? 170 : 470;
-    const card = this.add.container(cx, 210).setDepth(50);
+    // fixed spot in the empty bottom-right corner of the map, so it never covers a pin
+    const card = this.add.container(432, 290).setDepth(50);
     const bg = this.add.image(0, 0, 'panel').setScale(0.88, 0.56);
     card.add(bg);
     card.add(headText(this, 0, -54, `CHAPTER ${ch.num}`, 8, P.cyan1));
@@ -143,8 +144,19 @@ export default class MapScene extends Phaser.Scene {
     card.add(btn);
     card.setScale(0.9).setAlpha(0);
     this.tweens.add({ targets: card, scale: 1, alpha: 1, duration: 200, ease: 'Back.Out' });
+    const close = headText(this, 120, -54, 'X', 8, P.cream).setInteractive({ useHandCursor: true });
+    close.on('pointerup', () => this.closeCard());
+    card.add(close);
     this.card = card;
     this.pins.forEach((p) => p.list[1].setScale(p.ch.id === id ? 1.25 : 1));
+  }
+
+  closeCard() {
+    if (!this.card) return;
+    Audio.sfx('ui_back');
+    this.card.destroy();
+    this.card = null;
+    this.pins.forEach((p) => p.list[1].setScale(1));
   }
 
   driveTo(id) {
