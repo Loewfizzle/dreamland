@@ -109,6 +109,35 @@ export const CH2 = {
 };
 
 // ---------------------------------------------------------------------------
+// Chapter 3 — THE PERIMETER (top-down stealth)
+// ---------------------------------------------------------------------------
+export const CH3 = {
+  WALK_SPEED: 92,
+  SNEAK_SPEED: 52,         // hold the SNEAK button (or Shift) to move slowly and silently
+  ZEUS_SPEED: 115,
+  GUARD_FOV: 1.15,         // radians (~66°) of the flashlight cone
+  GUARD_RANGE: 132,        // px the cone reaches
+  CONE_RAYS: 22,           // smoothness of the cone (lower = faster on old phones)
+  NOTICE_RATE: 0.9,        // suspicion per second at the cone's far edge…
+  NOTICE_RATE_CLOSE: 3.6,  // …rising to this right in front of the guard
+  NOTICE_DECAY: 0.55,      // suspicion drains this fast when out of sight
+  HIDE_SEEN_DIST: 20,      // guards only spot a hidden Ben this close
+  CHASE_SPEED: 88,         // guards chase a bit slower than Ben walks
+  CATCH_DIST: 14,
+  LOSE_SIGHT_MS: 2600,     // chasing guard gives up after this long without seeing Ben
+  SEARCH_MS: 3200,
+  BARK_RADIUS: 230,        // guards this close come to investigate a bark
+  BARK_INVESTIGATE_MS: 2400, // how long they snoop around (BIG BARK upgrade adds more)
+  BARK_COOLDOWN_MS: 3200,
+  SNIFF_RADIUS: 160,
+  SNIFF_COOLDOWN_MS: 1500,
+  CUT_MS: 2200,            // hold to cut the fence
+  AMBIENT: 0x4a4a7e,       // moonlight (lower = darker)
+  ALERT_TINT: 0x6a2a3a,    // ambient when spotted
+  PAR_TIME: 280,
+};
+
+// ---------------------------------------------------------------------------
 // Chapter 5 — UNDERGROUND (side-scrolling run & gun)
 // Level design rule of thumb (checked automatically by tools/reach-check.mjs):
 // with these numbers Ben clears 4 tiles up and ~5 tiles across.

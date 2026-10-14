@@ -14,9 +14,9 @@ export const CHAPTERS = [
     map: { x: 262, y: 186 }, parTime: 300,
   },
   {
-    id: 'ch3', num: 3, title: 'THE PERIMETER', place: 'GROOM LAKE BOUNDARY', scene: null,
+    id: 'ch3', num: 3, title: 'THE PERIMETER', place: 'GROOM LAKE BOUNDARY', scene: 'Chapter3',
     blurb: 'Sneak past patrols and searchlights. Zeus can bark to distract guards.',
-    map: { x: 356, y: 160 },
+    map: { x: 356, y: 160 }, parTime: 280,
   },
   {
     id: 'ch4', num: 4, title: 'THE HANGAR', place: 'HANGAR 18', scene: null,

@@ -335,3 +335,58 @@ Object.assign(SFX, {
     return 0.4;
   },
 });
+
+// ---- stealth (Chapter 3) -------------------------------------------------------
+Object.assign(SFX, {
+  // Guard notices something: a quick rising two-note "huh?"
+  suspicious(e, out, t) {
+    const ctx = e.ctx;
+    [[440, 0], [660, 0.09]].forEach(([f, d]) => tone(ctx, 'triangle', f, t + d, t + d + 0.15).connect(gainEnv(ctx, t + d, 0.14, 0.005, 0.12)).connect(out));
+    return 0.3;
+  },
+  // SPOTTED! sharp metallic stinger with a sub hit
+  spotted(e, out, t) {
+    const ctx = e.ctx;
+    for (const [f, a] of [[1760, 0.16], [2637, 0.1], [3520, 0.06]]) {
+      tone(ctx, 'square', f, t, t + 0.4).connect(filter(ctx, 'lowpass', 5000)).connect(gainEnv(ctx, t, a, 0.002, 0.35)).connect(out);
+    }
+    const sub = tone(ctx, 'sine', 110, t, t + 0.4);
+    sub.frequency.exponentialRampToValueAtTime(40, t + 0.35);
+    sub.connect(gainEnv(ctx, t, 0.6, 0.003, 0.35)).connect(out);
+    return 0.5;
+  },
+  // Motion sensor ping (sonar-like)
+  sensor_ping(e, out, t) {
+    const ctx = e.ctx;
+    const o = tone(ctx, 'sine', 1320, t, t + 0.5);
+    o.frequency.exponentialRampToValueAtTime(990, t + 0.4);
+    o.connect(gainEnv(ctx, t, 0.06, 0.003, 0.45)).connect(out);
+    return 0.5;
+  },
+  // Wire snip
+  snip(e, out, t) {
+    const ctx = e.ctx;
+    noise(e, t, 0.04).connect(filter(ctx, 'highpass', 3500)).connect(gainEnv(ctx, t, 0.4, 0.001, 0.035)).connect(out);
+    tone(ctx, 'triangle', 2400, t, t + 0.12).connect(gainEnv(ctx, t, 0.12, 0.001, 0.1)).connect(out);
+    return 0.15;
+  },
+  // Bush rustle when hiding
+  rustle(e, out, t) {
+    const ctx = e.ctx;
+    for (let i = 0; i < 4; i++) {
+      const ti = t + i * 0.05;
+      noise(e, ti, 0.06).connect(filter(ctx, 'bandpass', rnd(2500, 4500), 1)).connect(gainEnv(ctx, ti, 0.14, 0.01, 0.05)).connect(out);
+    }
+    return 0.3;
+  },
+  // Caught: deflating "wah-wah"
+  caught(e, out, t) {
+    const ctx = e.ctx;
+    [[392, 0], [370, 0.22], [349, 0.44], [330, 0.66]].forEach(([f, d], i) => {
+      const o = tone(ctx, 'sawtooth', f, t + d, t + d + (i === 3 ? 0.7 : 0.22));
+      if (i === 3) o.frequency.linearRampToValueAtTime(300, t + d + 0.65);
+      o.connect(filter(ctx, 'lowpass', 1200)).connect(gainEnv(ctx, t + d, 0.14, 0.01, i === 3 ? 0.6 : 0.2)).connect(out);
+    });
+    return 1.4;
+  },
+});

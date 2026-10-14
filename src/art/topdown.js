@@ -40,7 +40,13 @@ function drawPerson(pc, pose, L, back = false) {
     if (L.strings) { pc.vline(10, 14 + b, 16 + b, P.cream); pc.vline(13, 14 + b, 16 + b, P.cream); }
     if (L.camera) { pc.rect(10, 16 + b, 5, 3, P.ink3); pc.px(12, 17 + b, P.cyan1); pc.line(9, 13 + b, 10, 16 + b, P.ink3); }
     if (L.vest) { pc.rect(7, 13 + b, 2, 9, L.vest); pc.rect(15, 13 + b, 2, 9, L.vest); }
-  } else if (L.hood) pc.rect(9, 13 + b, 6, 3, L.shirt2);
+    if (L.camo) for (const [x, y, c] of [[8, 14, 0], [13, 16, 1], [9, 19, 2], [14, 20, 0], [11, 13, 2]]) { pc.px(x, y + b, L.camo[c]); pc.px(x + 1, y + b, L.camo[c]); }
+    if (L.rifle) { pc.line(6, 21 + b, 17, 14 + b, '#1a1a22', 2); pc.px(17, 13 + b, '#4a4a52'); pc.px(5, 21 + b, '#3a2a1a'); }
+  } else {
+    if (L.hood) pc.rect(9, 13 + b, 6, 3, L.shirt2);
+    if (L.pack) { pc.rect(8, 14 + b, 8, 7, L.pack); pc.hline(8, 15, 14 + b, L.shirtHi ?? L.pack); pc.rect(9, 17 + b, 6, 2, L.shirt2); }
+    if (L.rifle) pc.line(7, 13 + b, 16, 21 + b, '#1a1a22');
+  }
   // neck + head
   pc.rect(10, 11 + b, 4, 2, L.skin2 ?? L.skin);
   pc.rect(8, 4 + b, 8, 8, L.skin);
@@ -81,6 +87,11 @@ function drawPerson(pc, pose, L, back = false) {
     pc.rect(7, 2 + b, 10, 4, H.color); pc.rect(6, 5 + b, 12, 1, H.dark);
     pc.vline(9, -3 + b, 1 + b, P.ink3); pc.vline(14, -3 + b, 1 + b, P.ink3);       // alien antenna headband
     pc.circle(9, -4 + b, 1, P.green1); pc.circle(14, -4 + b, 1, P.green1);
+  } else if (H.style === 'helmet') {
+    pc.ellipse(12, 3 + b, 6, 4, H.color); pc.rect(6, 3 + b, 12, 3, H.color);
+    pc.hline(7, 16, 6 + b, H.dark);
+    pc.px(9, 1 + b, H.hi); pc.px(14, 2 + b, H.dark); pc.px(10, 3 + b, H.dark);
+    if (!back) { pc.rect(9, 5 + b, 6, 2, '#1a2a2a'); pc.px(10, 5 + b, '#5a8a8a'); }   // night-vision goggles flipped up
   } else if (H.style === 'foil') {
     pc.poly([[7, 5 + b], [12, -4 + b], [17, 5 + b]], P.foil1);
     pc.line(9, 3 + b, 12, -3 + b, P.foil0); pc.px(14, 2 + b, P.foil2);
@@ -99,6 +110,11 @@ const walkPoses = (n = 4) => Array.from({ length: n }, (_, i) => ({
 }));
 
 export const LOOKS = {
+  guard: {
+    skin: P.skin1, skin2: P.skin2, shirt: P.sage2, shirt2: P.sage3, shirtHi: P.sage1, camo: [P.terra3, P.sage3, P.khaki2],
+    pants: P.sage3, legs: 'pants', shoes: P.ink3, rifle: true, pack: P.khaki2,
+    hair: { style: 'helmet', color: P.sage2, dark: P.sage3, hi: P.sage1 },
+  },
   ben: (cos = {}) => ({
     skin: P.skin1, skin2: P.skin2, shirt: P.hood1, shirt2: P.hood2, shirtHi: P.hood0, logo: 'btc', strings: true, hood: true,
     pants: P.khaki1, pants2: P.khaki2, legs: 'shorts', shoes: P.cream, beard: P.beard,
@@ -143,6 +159,19 @@ export function makeTopdownBen(scene, cos = {}) {
   registerAnims(scene, 'ben_td', {
     down: [0, 3, 8, -1], up: [4, 7, 8, -1], idle_down: [0, 0, 1, 0], idle_up: [4, 4, 1, 0],
   });
+}
+
+/** Perimeter guard ("camo dude"): front/back walk cycles + idle. Side view reuses 'soldier'. */
+export function makeGuardTD(scene) {
+  const L = LOOKS.guard;
+  const frames = [
+    ...walkPoses().map((p) => (pc) => drawPerson(pc, p, L, false)),
+    ...walkPoses().map((p) => (pc) => drawPerson(pc, p, L, true)),
+    (pc) => drawPerson(pc, {}, L, false),
+    (pc) => drawPerson(pc, {}, L, true),
+  ];
+  buildSheet(scene, 'guard_td', 24, 36, frames, { outline: P.outline });
+  registerAnims(scene, 'guard_td', { down: [0, 3, 7, -1], up: [4, 7, 7, -1], idle_down: [8, 8, 1, 0], idle_up: [9, 9, 1, 0] });
 }
 
 export function makeNPCs(scene) {

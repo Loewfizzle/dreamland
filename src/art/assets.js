@@ -16,8 +16,9 @@ import { makeWorldMap, makeMapIcons } from './map.js';
 import { makeVanInterior } from './van_interior.js';
 import { makeTrailerInterior, makeTrailerExterior, makeSUV, makeNote } from './cutscene.js';
 import { makeVanRear, makeZeusWindow, makeSuvRear, makeRoadblock, makeCow, makeRoadside } from './road.js';
-import { makeTopdownBen, makeTopdownZeus, makeNPCs } from './topdown.js';
+import { makeTopdownBen, makeTopdownZeus, makeNPCs, makeGuardTD } from './topdown.js';
 import { makeTownGround, makeDiner, makeTownProps, makeDinerInterior } from './rachel.js';
+import { makePerimeterGround, makePerimeterProps } from './perimeter.js';
 import { makeLogo, makeSign, makePost, makePanel, makeIcons, makeTouchArt, makeGlyphs, makeRatingStar } from './ui.js';
 
 /** key -> { url, frameWidth?, frameHeight? }   e.g.  van: { url: 'assets/sprites/van.png' } */
@@ -84,6 +85,10 @@ export const ART_STEPS = [
   { keys: ['town_ground'], gen: (s) => makeTownGround(s) },
   { keys: ['diner', 'mobilehome', 'towtruck', 'mailbox'], gen: (s) => { makeDiner(s); makeTownProps(s); } },
   { keys: ['diner_in'], gen: (s) => makeDinerInterior(s) },
+  // --- Chapter 3: the perimeter
+  { keys: ['guard_td'], gen: (s) => makeGuardTD(s) },
+  { keys: ['perimeter_ground'], gen: (s) => makePerimeterGround(s) },
+  { keys: ['rock_s', 'hidebush', 'fence_tile', 'searchtower', 'sensor', 'pickup'], gen: (s) => makePerimeterProps(s) },
   // --- hub screens & cutscenes
   { keys: ['worldmap'], gen: (s) => { makeWorldMap(s); makeMapIcons(s); } },
   { keys: ['van_interior'], gen: (s) => makeVanInterior(s) },
