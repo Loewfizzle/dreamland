@@ -528,7 +528,7 @@ export default class Chapter5Scene extends Phaser.Scene {
     const b = this.bolts.get(x, y, 'bolt');
     if (!b) return;
     b.setActive(true).setVisible(true).setDepth(DEPTH.FX).setFlipX(dir < 0).setBlendMode(Phaser.BlendModes.ADD);
-    b.body.reset(x, y);
+    b.enableBody(true, x, y, true, true);   // re-enable physics when recycling from the pool
     b.body.setAllowGravity(false);
     b.body.setSize(10, 4);
     b.setVelocity(dir * CH5.BLASTER_SPEED, (Math.random() - 0.5) * 12);
@@ -559,7 +559,7 @@ export default class Chapter5Scene extends Phaser.Scene {
     const b = this.ebullets.get(x, y, key);
     if (!b) return;
     b.setActive(true).setVisible(true).setDepth(DEPTH.FX).setBlendMode(Phaser.BlendModes.ADD);
-    b.body.reset(x, y);
+    b.enableBody(true, x, y, true, true);   // re-enable physics when recycling from the pool
     b.body.setAllowGravity(false);
     b.body.setCircle(3);
     const a = Math.atan2(ty - y, tx - x);
@@ -574,7 +574,7 @@ export default class Chapter5Scene extends Phaser.Scene {
     const o = this.orbs.get(x, y, 'orb');
     if (!o) return;
     o.setActive(true).setVisible(true).setDepth(DEPTH.FX).setBlendMode(Phaser.BlendModes.ADD);
-    o.body.reset(x, y);
+    o.enableBody(true, x, y, true, true);   // re-enable physics when recycling from the pool
     o.body.setAllowGravity(false);
     o.body.setCircle(4);
     o.target = target;
