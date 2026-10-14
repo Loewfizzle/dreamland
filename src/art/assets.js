@@ -16,6 +16,8 @@ import { makeWorldMap, makeMapIcons } from './map.js';
 import { makeVanInterior } from './van_interior.js';
 import { makeTrailerInterior, makeTrailerExterior, makeSUV, makeNote } from './cutscene.js';
 import { makeVanRear, makeZeusWindow, makeSuvRear, makeRoadblock, makeCow, makeRoadside } from './road.js';
+import { makeTopdownBen, makeTopdownZeus, makeNPCs } from './topdown.js';
+import { makeTownGround, makeDiner, makeTownProps, makeDinerInterior } from './rachel.js';
 import { makeLogo, makeSign, makePost, makePanel, makeIcons, makeTouchArt, makeGlyphs, makeRatingStar } from './ui.js';
 
 /** key -> { url, frameWidth?, frameHeight? }   e.g.  van: { url: 'assets/sprites/van.png' } */
@@ -77,6 +79,11 @@ export const ART_STEPS = [
   // --- Chapter 1: the highway
   { keys: ['sky_golden'], gen: (s) => makeSky(s, 'sky_golden', SKIES.golden, 640, 260) },
   { keys: ['van_rear', 'zeus_window', 'suv_rear', 'roadblock', 'cow', 'pole'], gen: (s) => { makeVanRear(s); makeZeusWindow(s); makeSuvRear(s); makeRoadblock(s); makeCow(s); makeRoadside(s); } },
+  // --- Chapter 2: Rachel
+  { keys: ['ben_td', 'zeus_td', 'npc_dolores'], gen: (s) => { makeTopdownBen(s); makeTopdownZeus(s); makeNPCs(s); } },
+  { keys: ['town_ground'], gen: (s) => makeTownGround(s) },
+  { keys: ['diner', 'mobilehome', 'towtruck', 'mailbox'], gen: (s) => { makeDiner(s); makeTownProps(s); } },
+  { keys: ['diner_in'], gen: (s) => makeDinerInterior(s) },
   // --- hub screens & cutscenes
   { keys: ['worldmap'], gen: (s) => { makeWorldMap(s); makeMapIcons(s); } },
   { keys: ['van_interior'], gen: (s) => makeVanInterior(s) },

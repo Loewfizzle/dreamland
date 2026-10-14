@@ -8,6 +8,7 @@ import { CHAPTERS, chapterById } from '../data/chapters.js';
 import { generateCharacters } from '../art/characters.js';
 import { makeVan, VAN_PAINTS } from '../art/props.js';
 import { makeVanRear } from '../art/road.js';
+import { makeTopdownBen, makeTopdownZeus } from '../art/topdown.js';
 
 export const upgradeLevel = (id) => Save.data.upgrades[id] ?? 0;
 export const upgradeDef = (id) => SHOP.upgrades.find((u) => u.id === id);
@@ -122,4 +123,6 @@ export function applyCosmetics(scene) {
   generateCharacters(scene, { cap: cap?.color, capDark: cap?.dark, bandana: bandana?.color });
   makeVan(scene, 'van', VAN_PAINTS[van?.paint ?? 'teal']);
   makeVanRear(scene, VAN_PAINTS[van?.paint ?? 'teal']);
+  makeTopdownBen(scene, { cap: cap?.color, capDark: cap?.dark });
+  makeTopdownZeus(scene, { bandana: bandana?.color });
 }

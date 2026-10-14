@@ -41,12 +41,14 @@ export class PixelCanvas {
     this.w = w;
     this.h = h;
     this.data = new Uint8ClampedArray(w * h * 4);
+    this.ox = 0;   // drawing offset applied by px() (handy for adding headroom to a rig)
+    this.oy = 0;
   }
 
   inBounds(x, y) { return x >= 0 && y >= 0 && x < this.w && y < this.h; }
 
   px(x, y, c) {
-    x |= 0; y |= 0;
+    x = (x + this.ox) | 0; y = (y + this.oy) | 0;
     if (!this.inBounds(x, y)) return;
     const v = parse(c);
     if (!v) return;
@@ -143,6 +145,8 @@ export class PixelCanvas {
    * Gives sprites that crisp "finished" pop against busy backgrounds.
    */
   outline(c, rx = 0, ry = 0, rw = this.w, rh = this.h, diagonal = false) {
+    const [sox, soy] = [this.ox, this.oy];
+    this.ox = this.oy = 0;                       // outline works in raw canvas space
     const mark = [];
     for (let y = ry; y < ry + rh; y++) {
       for (let x = rx; x < rx + rw; x++) {
@@ -153,6 +157,7 @@ export class PixelCanvas {
       }
     }
     for (let i = 0; i < mark.length; i += 2) this.px(mark[i], mark[i + 1], c);
+    this.ox = sox; this.oy = soy;
   }
 
   /** Copy another PixelCanvas onto this one. */

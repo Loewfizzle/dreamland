@@ -92,6 +92,23 @@ export const CH1 = {
 };
 
 // ---------------------------------------------------------------------------
+// Chapter 2 — RACHEL, NEVADA (top-down exploration)
+// ---------------------------------------------------------------------------
+export const CH2 = {
+  WALK_SPEED: 105,
+  ZEUS_SPEED: 125,
+  TALK_RANGE: 34,          // how close Ben must be to talk / use things
+  DIG_RANGE: 30,           // how close to a revealed dig spot to dig
+  DIG_MS: 1500,            // how long Zeus digs (POWER PAWS upgrade shortens it)
+  SNIFF_RADIUS: 170,       // reveals dig spots this close (SUPER SNIFFER upgrade extends it)
+  SNIFF_TRAIL_RANGE: 700,  // the glowing paw-print trail points at a spot this far away
+  SNIFF_COOLDOWN_MS: 1200,
+  AMBIENT_OUT: 0x7a6694,   // dusk light outside
+  AMBIENT_IN: 0xc8b0b0,    // warm diner light inside
+  PAR_TIME: 300,
+};
+
+// ---------------------------------------------------------------------------
 // Chapter 5 — UNDERGROUND (side-scrolling run & gun)
 // Level design rule of thumb (checked automatically by tools/reach-check.mjs):
 // with these numbers Ben clears 4 tiles up and ~5 tiles across.

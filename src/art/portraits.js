@@ -160,8 +160,84 @@ function agentFace(pc, mood) {
 }
 PORTRAITS.agent = ['stern', 'smug'];
 
+// ---------------------------------------------------------------------------
+//  Rachel locals — one parametric face, different looks
+// ---------------------------------------------------------------------------
+const LOCALS = {
+  dolores: { skin: [P.skin0, P.skin1, P.skin2], shirt: '#e86a8a', shirt2: '#b84a6a', hair: '#e0e0ec', hair2: '#b8b8c8', style: 'beehive', glasses: '#c8423a', lips: '#c8423a', apron: true },
+  earl:    { skin: [P.skin1, P.skin2, P.skin3], shirt: '#8a4a3a', shirt2: '#5a4a3a', hair: '#e8e8e8', hair2: '#b8b8b8', style: 'hat', beard: '#ececec', hat: '#8a6a4a', hat2: '#5a4028' },
+  mabel:   { skin: [P.skin0, P.skin1, P.skin2], shirt: '#7aa8c8', shirt2: '#5a88a8', hair: '#c8c8d8', hair2: '#a8a8b8', style: 'foil', glasses: '#3a3a5a' },
+  tourist: { skin: ['#f8c8b0', '#f0b8a0', '#d89880'], shirt: '#5dbf6a', shirt2: '#3a9a4a', hair: '#8a6a4a', hair2: '#6a4a30', style: 'bucket', shades: true },
+};
+PORTRAITS.dolores = ['smug', 'stern', 'soft', 'shocked'];
+PORTRAITS.earl = ['talk', 'happy'];
+PORTRAITS.mabel = ['talk', 'happy'];
+PORTRAITS.tourist = ['talk', 'happy'];
+
+function localFace(pc, who, mood) {
+  const L = LOCALS[who];
+  const [s0, s1, s2] = L.skin;
+  pc.ellipse(24, 52, 21, 13, L.shirt);
+  pc.ellipse(24, 54, 21, 10, L.shirt2);
+  if (L.apron) { pc.rect(16, 42, 16, 8, P.white); pc.rect(30, 42, 6, 4, P.white); pc.hline(31, 34, 43, '#3a3a5a'); }   // apron + name tag
+  pc.rect(19, 33, 10, 7, s2);
+  pc.ellipse(24, 23, 11, 13, s1);
+  for (let y = 15; y < 34; y++) pc.px(34 - Math.abs(y - 24) * 0.3, y, s2);
+  pc.ellipse(18, 26, 3, 2, s0);
+  pc.ellipse(12, 24, 2, 3, s2); pc.ellipse(36, 24, 2, 3, s2);
+  if (who === 'earl') { pc.line(15, 28, 18, 30, s2); pc.line(30, 30, 33, 28, s2); }            // weathered wrinkles
+  // hair / hats
+  if (L.style === 'beehive') {
+    pc.ellipse(24, 6, 12, 10, L.hair); pc.ellipse(20, 3, 5, 4, '#ffffff'); pc.rect(12, 10, 24, 6, L.hair);
+    pc.vline(13, 12, 24, L.hair); pc.vline(35, 12, 24, L.hair); pc.line(16, 8, 30, 5, L.hair2);
+  } else if (L.style === 'hat') {
+    pc.ellipse(24, 12, 22, 4, L.hat2); pc.ellipse(24, 7, 12, 7, L.hat); pc.hline(13, 35, 11, L.hat2);
+    pc.ellipse(20, 4, 4, 2, '#a88a6a');
+  } else if (L.style === 'foil') {
+    pc.poly([[10, 16], [24, -4], [38, 16]], P.foil1); pc.line(16, 12, 24, -2, P.foil0); pc.line(28, 6, 33, 14, P.foil2);
+    for (const x of [12, 36]) { pc.circle(x, 18, 3, '#e8a0c0'); pc.circle(x, 18, 1, '#f8c8d8'); }   // curlers
+    pc.rect(13, 14, 22, 3, L.hair);
+  } else if (L.style === 'bucket') {
+    pc.ellipse(24, 10, 14, 7, '#e8dcc0'); pc.ellipse(24, 14, 17, 3, '#c8b894');
+    for (const x of [16, 32]) { pc.vline(x, -2, 6, P.ink3); pc.circle(x, 1, 2, P.green1); pc.px(x - 1, 0, P.green0); }
+  }
+  // eyes
+  const ex = [18, 30], ey = 22;
+  if (L.shades) { pc.rect(13, 19, 10, 6, P.ink); pc.rect(26, 19, 10, 6, P.ink); pc.hline(22, 26, 20, P.ink); pc.hline(14, 20, 20, '#5a5a7a'); pc.hline(27, 33, 20, '#5a5a7a'); }
+  else {
+    for (const x of ex) {
+      if (mood === 'shocked') { pc.rect(x - 2, ey - 2, 5, 5, P.white); pc.px(x, ey, P.ink); }
+      else if (mood === 'happy' || mood === 'soft') { pc.line(x - 2, ey + 1, x, ey - 1, P.ink); pc.line(x, ey - 1, x + 2, ey + 1, P.ink); }
+      else { pc.rect(x - 2, ey - 1, 5, 4, P.white); pc.rect(x, ey - 1, 2, 3, P.ink); }
+    }
+    // brows
+    const browY = mood === 'stern' ? [18, 20] : mood === 'smug' ? [16, 18] : [17, 17];
+    pc.line(15, browY[0], 21, browY[1], L.hair2); pc.line(27, mood === 'smug' ? 16 : browY[1], 33, browY[0], L.hair2);
+    if (L.glasses) { pc.rect(13, 19, 10, 7, '#00000000'); for (const x of [13, 26]) { pc.hline(x, x + 9, 19, L.glasses); pc.hline(x, x + 9, 25, L.glasses); pc.vline(x, 19, 25, L.glasses); pc.vline(x + 9, 19, 25, L.glasses); } pc.hline(23, 25, 21, L.glasses); if (who === 'dolores') { pc.px(12, 18, L.glasses); pc.px(36, 18, L.glasses); } }
+  }
+  // nose
+  pc.vline(25, 22, 27, s2); pc.hline(23, 26, 28, s2);
+  // beard / mouth
+  if (L.beard) {
+    pc.ellipse(24, 33, 11, 7, L.beard); pc.rect(14, 26, 3, 6, L.beard); pc.rect(31, 26, 3, 6, L.beard);
+    pc.hline(19, 29, 29, '#c8c8c8');
+    if (mood === 'happy') { pc.rect(21, 31, 7, 2, P.ink); pc.hline(22, 26, 31, P.white); } else pc.hline(21, 27, 32, '#8a7a70');
+  } else {
+    const lip = L.lips ?? '#a05050';
+    if (mood === 'shocked') pc.ellipse(24, 32, 3, 3, P.ink);
+    else if (mood === 'smug') { pc.hline(20, 27, 31, lip); pc.px(27, 30, lip); pc.px(28, 30, lip); }
+    else if (mood === 'stern') pc.hline(20, 28, 31, lip);
+    else if (mood === 'happy' || mood === 'soft' || mood === 'talk') { pc.rect(20, 30, 9, 3, P.ink); pc.hline(21, 27, 30, P.white); if (L.lips) { pc.hline(20, 28, 29, lip); pc.hline(20, 28, 33, lip); } }
+  }
+  if (who === 'tourist') { pc.rect(16, 42, 14, 8, P.ink3); pc.circle(23, 46, 3, '#2a2a3a'); pc.px(22, 45, P.cyan1); }  // camera
+  pc.outline(P.outline);
+}
+
 export function makePortraits(scene) {
   buildSheet(scene, 'portrait_agent', 48, 48, PORTRAITS.agent.map((m) => (pc) => agentFace(pc, m)));
+  for (const who of Object.keys(LOCALS)) {
+    buildSheet(scene, `portrait_${who}`, 48, 48, PORTRAITS[who].map((m) => (pc) => localFace(pc, who, m)));
+  }
   buildSheet(scene, 'portrait_ben', 48, 48, PORTRAITS.ben.map((m) => (pc) => benFace(pc, m)));
   buildSheet(scene, 'portrait_zeus', 48, 48, PORTRAITS.zeus.map((m) => (pc) => zeusFace(pc, m)));
 }

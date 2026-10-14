@@ -9,9 +9,9 @@ export const CHAPTERS = [
     map: { x: 196, y: 236 }, parTime: 170,
   },
   {
-    id: 'ch2', num: 2, title: 'RACHEL, NEVADA', place: 'POPULATION 54', scene: null,
-    blurb: 'A tiny town, a neon diner, and locals who know more than they say.',
-    map: { x: 262, y: 186 },
+    id: 'ch2', num: 2, title: 'RACHEL, NEVADA', place: 'POPULATION 54', scene: 'Chapter2',
+    blurb: "Dusk at the Little A'Le'Inn. The locals know more than they say.",
+    map: { x: 262, y: 186 }, parTime: 300,
   },
   {
     id: 'ch3', num: 3, title: 'THE PERIMETER', place: 'GROOM LAKE BOUNDARY', scene: null,

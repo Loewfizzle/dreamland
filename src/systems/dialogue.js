@@ -21,6 +21,10 @@ export const SPEAKERS = {
   ben:  { name: 'BEN',  color: P.btc,   voice: { pitch: 190, wave: 'square' } },
   zeus: { name: 'ZEUS', color: P.gold1, voice: { pitch: 430, wave: 'triangle' } },
   agent:{ name: 'AGENT',color: P.chrome1, voice: { pitch: 120, wave: 'sawtooth' } },
+  dolores: { name: 'DOLORES', color: '#ff7aa8', voice: { pitch: 280, wave: 'triangle' } },
+  earl:    { name: 'EARL', color: '#d8a070', voice: { pitch: 140, wave: 'sawtooth' } },
+  mabel:   { name: 'MABEL', color: '#9ad0f0', voice: { pitch: 340, wave: 'triangle' } },
+  tourist: { name: 'KEVIN', color: '#7fe08a', voice: { pitch: 230, wave: 'square' } },
   radio:{ name: 'RADIO',color: P.cyan1, voice: { pitch: 300, wave: 'sawtooth' }, portrait: 'agent' },
 };
 
