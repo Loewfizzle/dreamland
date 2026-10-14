@@ -13,7 +13,9 @@ export function noise(e, t, dur, { loop = false } = {}) {
   const s = e.ctx.createBufferSource();
   s.buffer = e.noise;
   if (loop) { s.loop = true; s.start(t); return s; }
-  s.start(t, rnd(0, e.noise.duration - dur - 0.05), dur + 0.05);
+  // long sounds loop the 2s noise buffer; short ones start at a random point inside it
+  if (dur + 0.05 >= e.noise.duration) { s.loop = true; s.start(t); s.stop(t + dur + 0.05); return s; }
+  s.start(t, rnd(0, Math.max(0, e.noise.duration - dur - 0.05)), dur + 0.05);
   return s;
 }
 export function filter(ctx, type, freq, q = 1) {

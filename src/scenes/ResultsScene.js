@@ -119,7 +119,8 @@ export default class ResultsScene extends Phaser.Scene {
     delay += 1000;
 
     this.time.delayedCall(delay, () => {
-      const cont = signButton(this, W / 2 + 70, H - 22, 'VAN SHOP', () => goTo(this, 'VanShop'), { texture: 'sign_orange', arrow: true });
+      const nextKey = d.next ?? 'VanShop';
+      const cont = signButton(this, W / 2 + 70, H - 22, d.next ? 'CONTINUE' : 'VAN SHOP', () => goTo(this, nextKey), { texture: 'sign_orange', arrow: true });
       const replay = signButton(this, W / 2 - 70, H - 22, 'REPLAY', () => goTo(this, ch.scene));
       [cont, replay].forEach((b) => { b.setScale(0.85); b.setAlpha(0); this.tweens.add({ targets: b, alpha: 1, duration: 250 }); });
     });

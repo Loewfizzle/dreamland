@@ -11,8 +11,8 @@ Built with **Phaser 3 + Vite + plain JavaScript**. Every sprite is hand-crafted 
 | 1. Engine, controls, save, audio engine, title screen | ✅ done |
 | ★ Vertical slice: Chapter 5 "Underground" (full quality bar) | ✅ playable |
 | 2. Dialogue/cutscenes, intro, chapter map, van shop, results | ✅ done |
-| 3. Chapters 1–6 | 🚧 Ch1–5 ✅  — Ch6 next |
-| 4. Ending, credits, post-credits stinger | — |
+| 3. Chapters 1–6 | ✅ done |
+| 4. Ending, credits, post-credits stinger | ✅ done |
 | 5. Polish pass | — |
 | 6. Deploy docs | — |
 

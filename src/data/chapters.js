@@ -29,9 +29,9 @@ export const CHAPTERS = [
     map: { x: 486, y: 184 }, parTime: 240,
   },
   {
-    id: 'ch6', num: 6, title: 'DREAMLAND', place: 'THE SKY ABOVE AREA 51', scene: null,
+    id: 'ch6', num: 6, title: 'DREAMLAND', place: 'THE SKY ABOVE AREA 51', scene: 'Chapter6',
     blurb: 'Protect Satoshi\'s escape from the UFO enforcer.',
-    map: { x: 560, y: 92 },
+    map: { x: 560, y: 92 }, parTime: 210,
   },
 ];
 

@@ -296,8 +296,9 @@ function bell(e, layer, t, freqs, dur, vel) {
 function noiseSrc(e, t, dur) {
   const s = e.ctx.createBufferSource();
   s.buffer = e.noise;
-  const off = Math.random() * (e.noise.duration - dur - 0.05);
-  s.start(t, Math.max(0, off), dur + 0.05);
+  if (dur + 0.05 >= e.noise.duration) { s.loop = true; s.start(t); s.stop(t + dur + 0.05); return s; }
+  const off = Math.random() * Math.max(0, e.noise.duration - dur - 0.05);
+  s.start(t, off, dur + 0.05);
   return s;
 }
 

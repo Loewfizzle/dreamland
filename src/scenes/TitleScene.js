@@ -44,7 +44,7 @@ export default class TitleScene extends Phaser.Scene {
     if (this.scale.fullscreen.available) {
       this.fsBtn = iconButton(this, W - 20, 20, 'fullscreen', () => this.scale.toggleFullscreen());
     }
-    bodyText(this, W - 6, H - 4, 'v0.3  CHAPTER 5 + HUB', 16, P.cream2, { ox: 1, oy: 1 }).setAlpha(0.55).setDepth(50);
+    bodyText(this, W - 6, H - 4, 'v1.0', 16, P.cream2, { ox: 1, oy: 1 }).setAlpha(0.55).setDepth(50);
 
     // "TAP TO START" — the first tap also unlocks audio on mobile.
     this.tapText = headText(this, W / 2, 146, 'TAP TO START', 8, P.cream);

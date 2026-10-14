@@ -159,6 +159,29 @@ export const CH4 = {
 };
 
 // ---------------------------------------------------------------------------
+// Chapter 6 — DREAMLAND (side-view boss shooter)
+// ---------------------------------------------------------------------------
+export const CH6 = {
+  SLED_SPEED: 170,          // px/sec
+  MAX_HEALTH: 6,            // hearts (EXTRA HEART upgrade adds more)
+  INVULN_MS: 1300,
+  FIRE_MS: 130,             // sled cannon rate (BLASTER MOD makes it faster)
+  BOLT_SPEED: 460,
+  BOLT_DAMAGE: 1,           // BLASTER MOD adds to this
+  BOSS_HP: 3600,            // total; phases switch at 66% and 33% (~2.5 min fight)
+  BOSS_CORE_MULT: 2,        // shots that hit the glowing core do double damage
+  BULLET_SPEED: 120,        // boss bullets — readable and dodgeable
+  DRONE_HP: 3,
+  DRONE_SHIP_DAMAGE: 12,    // ship shield lost when a drone reaches Satoshi's ship
+  SHIP_SHIELD: 100,         // if this hits 0 the ship is knocked out -> retry phase
+  SHIELD_REGEN: 1.2,        // shield points regained per second
+  POWER_BARK_CHARGE: 0.012, // meter gained per hit landed (0..1)
+  POWER_BARK_DAMAGE: 170,
+  BEAM_PULL: 120,           // tractor beam pull strength (px/sec)
+  PAR_TIME: 210,
+};
+
+// ---------------------------------------------------------------------------
 // Chapter 5 — UNDERGROUND (side-scrolling run & gun)
 // Level design rule of thumb (checked automatically by tools/reach-check.mjs):
 // with these numbers Ben clears 4 tiles up and ~5 tiles across.

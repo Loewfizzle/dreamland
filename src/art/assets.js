@@ -20,6 +20,7 @@ import { makeTopdownBen, makeTopdownZeus, makeNPCs, makeGuardTD } from './topdow
 import { makeTownGround, makeDiner, makeTownProps, makeDinerInterior } from './rachel.js';
 import { makePerimeterGround, makePerimeterProps } from './perimeter.js';
 import { makeHangarFar, makeHangarFloor, makeTarpSaucer, makeHangarProps } from './hangar.js';
+import { makeNightSky, makeSled, makeBoss, makeSatoshiShip, makeSatoshi, makeFinaleProps } from './finale.js';
 import { makeLogo, makeSign, makePost, makePanel, makeIcons, makeTouchArt, makeGlyphs, makeRatingStar } from './ui.js';
 
 /** key -> { url, frameWidth?, frameHeight? }   e.g.  van: { url: 'assets/sprites/van.png' } */
@@ -94,6 +95,9 @@ export const ART_STEPS = [
   { keys: ['hangar_far', 'hangar_floor'], gen: (s) => { makeHangarFar(s); makeHangarFloor(s); } },
   { keys: ['tarp_saucer'], gen: (s) => makeTarpSaucer(s) },
   { keys: ['blastdoor', 'hackterm', 'palletrack', 'forklift'], gen: (s) => makeHangarProps(s) },
+  // --- Chapter 6 & ending
+  { keys: ['nightsky'], gen: (s) => makeNightSky(s) },
+  { keys: ['sled', 'boss', 'sship', 'satoshi'], gen: (s) => { makeSled(s); makeBoss(s); makeSatoshiShip(s); makeSatoshi(s); makeFinaleProps(s); } },
   // --- hub screens & cutscenes
   { keys: ['worldmap'], gen: (s) => { makeWorldMap(s); makeMapIcons(s); } },
   { keys: ['van_interior'], gen: (s) => makeVanInterior(s) },
