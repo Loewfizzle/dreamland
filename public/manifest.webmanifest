@@ -1,0 +1,10 @@
+{
+  "name": "Dreamland Heist",
+  "short_name": "Dreamland",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0b0a1a",
+  "theme_color": "#0b0a1a",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
