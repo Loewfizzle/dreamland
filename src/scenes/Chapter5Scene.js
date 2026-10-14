@@ -9,12 +9,12 @@ import { P, hexNum } from '../art/palette.js';
 import { TILE } from '../art/lab.js';
 import { Audio } from '../systems/audio.js';
 import { Input } from '../systems/input.js';
-import { Save } from '../systems/save.js';
 import { Lighting } from '../systems/lighting.js';
 import { Dialogue } from '../systems/dialogue.js';
 import { applyFilm, shake, vibrate, hitStop } from '../systems/fx.js';
 import { headText, bodyText, signButton, goTo, fadeIn } from '../systems/ui.js';
 import { buildLevel, COLS, ROWS, FLOOR } from '../data/ch5_level.js';
+import { stat } from '../systems/progress.js';
 import Ben from '../entities/ch5/Ben.js';
 import Zeus from '../entities/ch5/Zeus.js';
 import { ENEMY_TYPES } from '../entities/ch5/Enemies.js';
@@ -36,6 +36,8 @@ export default class Chapter5Scene extends Phaser.Scene {
     this.golden = [false, false, false];
     this.combatUntil = 0;
     this.tipsShown = new Set();
+    this.coinsCollected = 0;
+    this.hitsTaken = 0;
     this.ended = false;
 
     this.physics.world.setBounds(0, 0, WORLD_W, WORLD_H + 200);
@@ -92,7 +94,7 @@ export default class Chapter5Scene extends Phaser.Scene {
       this.scene.bringToTop('Controls');
     };
     Input.events.on('pause', onPause);
-    this.events.on('ben-hp', (hp) => this.updateHearts(hp));
+    this.events.on('ben-hp', (hp) => { if (hp < (this.lastHp ?? 99)) this.hitsTaken++; this.lastHp = hp; this.updateHearts(hp); });
     this.events.on('ben-dead', () => this.onBenDead());
     this.events.on('impact', (x, y) => this.sparkBurst(x, y, P.gold0, 12));
     this.events.once('shutdown', () => {
@@ -359,7 +361,7 @@ export default class Chapter5Scene extends Phaser.Scene {
     this.physics.add.overlap(this.bolts, this.enemies, (a1, a2) => {
       const [b, e] = isBolt(a1) ? [a1, a2] : [a2, a1];
       if (!b.active || e.dead || !e.hit) return;
-      e.hit(CH5.BLASTER_DAMAGE, b.x - b.body.velocity.x);
+      e.hit(stat('blasterDamage', CH5.BLASTER_DAMAGE), b.x - b.body.velocity.x);
       this.sparkBurst(b.x, b.y, P.cyan1, 8);
       Audio.sfx('hit', { volume: 0.7, pan: Audio.panFor(b.x, this.cameras.main), minGap: 40 });
       this.killBolt(b, false);
@@ -396,7 +398,7 @@ export default class Chapter5Scene extends Phaser.Scene {
     plate.lineStyle(1, hexNum(P.ink4), 1).strokeRoundedRect(6, 6, 96, 44, 3);
     hud.add(plate);
     this.hearts = [];
-    for (let i = 0; i < CH5.MAX_HEALTH; i++) {
+    for (let i = 0; i < this.ben.maxHp; i++) {
       const h = this.add.image(16 + i * 12, 16, 'heart', 0);
       hud.add(h);
       this.hearts.push(h);
@@ -518,7 +520,16 @@ export default class Chapter5Scene extends Phaser.Scene {
       { who: 'zeus', mood: 'alert', text: '*ears perk up* ...grrrr.' },
       { who: 'ben', mood: 'angry', text: 'New plan, buddy. We\'re not just taking the rig back. We\'re breaking Satoshi OUT.' },
     ]);
-    this.showResults();
+    this.finishChapter();
+  }
+
+  finishChapter() {
+    const time = (this.time.now - this.startedAt) / 1000;
+    goTo(this, 'Results', {
+      chapter: 'ch5', sats: this.sats, coins: this.coinsCollected, coinsTotal: this.level.coins.length,
+      golden: this.golden, time, clean: this.hitsTaken === 0, cleanLabel: 'NO DAMAGE TAKEN',
+      stats: [['ENEMIES BONKED', this.kills, 'num'], ['COINS', `${this.coinsCollected} / ${this.level.coins.length}`, 'text']],
+    }, { duration: 700 });
   }
 
   // ===========================================================================
@@ -664,6 +675,7 @@ export default class Chapter5Scene extends Phaser.Scene {
   collectCoin(c) {
     if (!c.active) return;
     c.disableBody(true, false);
+    this.coinsCollected++;
     const now = this.time.now;
     this.combo = now - (this.lastCoin ?? 0) < 900 ? Math.min(10, (this.combo ?? 0) + 1) : 0;
     this.lastCoin = now;
@@ -818,11 +830,12 @@ export default class Chapter5Scene extends Phaser.Scene {
 
     // Zeus ability: TACKLE a nearby enemy, otherwise SNIFF
     if (Input.consume('B') && !ben.frozen) {
+      this.zeus.sniffRadius = stat('sniffRadius', CH5.SNIFF_RADIUS);
       const target = this.nearestEnemy(zeus.x, zeus.y, CH5.TACKLE_RANGE);
       if (target && zeus.tackleReady) zeus.tackle(target);
       else if (!target) zeus.sniff((x, y, r) => this.revealGoldens(x, y, r));
     }
-    const cd = Phaser.Math.Clamp((time - zeus.lastTackle) / CH5.TACKLE_COOLDOWN_MS, 0, 1);
+    const cd = Phaser.Math.Clamp((time - zeus.lastTackle) / stat('tackleCooldown', CH5.TACKLE_COOLDOWN_MS), 0, 1);
     this.pawBar.width = 60 * cd;
     this.pawIcon.setAlpha(cd >= 1 ? 1 : 0.4);
 
@@ -962,73 +975,6 @@ export default class Chapter5Scene extends Phaser.Scene {
       if (sp > 95) { v.x *= 95 / sp; v.y *= 95 / sp; }
       o.rotation += 0.2;
     }
-  }
-
-  // ===========================================================================
-  //  RESULTS (temporary card — the full results screen lands in Milestone 2)
-  // ===========================================================================
-  showResults() {
-    const time = (this.time.now - this.startedAt) / 1000;
-    const goldCount = this.golden.filter(Boolean).length;
-    const maxSats = this.level.coins.length * ECONOMY.COIN_VALUE;
-    const coinSats = this.sats - goldCount * ECONOMY.GOLDEN_VALUE - this.kills * CH5.SATS_PER_KILL;
-    let stars = 1;
-    if (coinSats >= maxSats * 0.6) stars++;
-    if (goldCount === 3) stars++;
-    const prev = Save.data.chapters.ch5 ?? {};
-    Save.data.chapters.ch5 = {
-      done: true, stars: Math.max(stars, prev.stars ?? 0),
-      golden: [0, 1, 2].map((i) => this.golden[i] || prev.golden?.[i] || false),
-      bestTime: Math.min(time, prev.bestTime ?? Infinity),
-    };
-    Save.addSats(this.sats);
-
-    Input.configure({ mode: 'none' });
-    const root = this.add.container(0, 0).setScrollFactor(0).setDepth(DEPTH.HUD + 10);
-    const dim = this.add.rectangle(0, 0, W, H, hexNum(P.ink), 0).setOrigin(0);
-    this.tweens.add({ targets: dim, fillAlpha: 0.8, duration: 400 });
-    const panel = this.add.image(W / 2, H / 2, 'panel').setScale(1.15, 1.05);
-    root.add([dim, panel]);
-    const title = headText(this, W / 2, 72, 'CHAPTER 5 COMPLETE', 16, P.btc);
-    root.add(title);
-    const rows = [
-      ['SATS EARNED', this.sats],
-      ['ENEMIES BONKED', this.kills],
-      ['GOLDEN BITCOINS', `${goldCount} / 3`],
-      ['TIME', `${Math.floor(time / 60)}:${String(Math.floor(time % 60)).padStart(2, '0')}`],
-    ];
-    rows.forEach(([label, val], i) => {
-      const y = 108 + i * 24;
-      const l = bodyText(this, W / 2 - 120, y, label, 16, P.cream, { oy: 0.5 }).setAlpha(0);
-      const v = headText(this, W / 2 + 120, y, '0', 8, P.white, { ox: 1 }).setAlpha(0);
-      root.add([l, v]);
-      this.time.delayedCall(500 + i * 380, () => {
-        l.setAlpha(1); v.setAlpha(1);
-        Audio.sfx('ui_hover');
-        if (typeof val === 'number') {
-          const o = { n: 0 };
-          this.tweens.add({ targets: o, n: val, duration: 600, onUpdate: () => { v.setText(String(Math.round(o.n))); if (Math.random() < 0.3) Audio.sfx('coin', { volume: 0.25, minGap: 50 }); } });
-        } else v.setText(val);
-      });
-    });
-    // stars
-    for (let i = 0; i < 3; i++) {
-      const s = this.add.image(W / 2 - 40 + i * 40, 222, 'rating_star').setScale(1.4).setTint(i < stars ? hexNum(P.btc1) : 0x3a3458).setAlpha(0);
-      root.add(s);
-      this.time.delayedCall(2200 + i * 300, () => {
-        s.setAlpha(1).setScale(3);
-        this.tweens.add({ targets: s, scale: 1.4, duration: 300, ease: 'Back.Out' });
-        if (i < stars) { Audio.sfx('ui_confirm', { volume: 0.7 }); this.sparkBurst(this.cameras.main.scrollX + s.x, this.cameras.main.scrollY + s.y, P.btc1, 12); }
-      });
-    }
-    this.time.delayedCall(3300, () => {
-      const again = signButton(this, W / 2 - 74, 262, 'PLAY AGAIN', () => this.scene.restart(), { texture: 'sign_orange' });
-      const title2 = signButton(this, W / 2 + 74, 262, 'TITLE', () => goTo(this, 'Title'));
-      again.setScale(0.8); title2.setScale(0.8);
-      root.add([again, title2]);
-      const note = bodyText(this, W / 2, 304, 'VERTICAL SLICE: the full story, map & van shop are coming!', 16, P.cyan1, { ox: 0.5 });
-      root.add(note);
-    });
   }
 
   wait(ms) { return new Promise((r) => this.time.delayedCall(ms, r)); }

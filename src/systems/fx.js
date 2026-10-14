@@ -15,12 +15,19 @@ uniform float uScan;
 uniform float uVignette;
 uniform vec3 uTint;
 uniform vec2 uRes;
+uniform float uHeat;
+uniform float uHorizon;
 varying vec2 outTexCoord;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 
 void main() {
   vec2 uv = outTexCoord;
+  // heat shimmer: wobble pixels in a band around the horizon
+  if (uHeat > 0.0) {
+    float band = smoothstep(0.07, 0.0, abs(uv.y - uHorizon));
+    uv.x += sin(uv.y * uRes.y * 0.75 + uTime * 9.0) * 0.0016 * uHeat * band;
+  }
   vec4 c = texture2D(uMainSampler, uv);
   // vignette: darken + slightly cool the corners
   vec2 d = uv - 0.5;
@@ -45,6 +52,8 @@ export class FilmFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
     super({ game, name: 'FilmFX', fragShader: FRAG });
     this.vignette = 1.0;
     this.tint = [1, 1, 1];
+    this.heat = 0;
+    this.horizon = 0.5;
   }
   onPreRender() {
     const film = Save.settings.film;
@@ -54,6 +63,8 @@ export class FilmFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
     this.set1f('uVignette', this.vignette);
     this.set3f('uTint', this.tint[0], this.tint[1], this.tint[2]);
     this.set2f('uRes', this.renderer.width, this.renderer.height);
+    this.set1f('uHeat', this.heat);
+    this.set1f('uHorizon', this.horizon);
   }
 }
 

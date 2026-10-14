@@ -62,6 +62,36 @@ export const ZEUS = {
 };
 
 // ---------------------------------------------------------------------------
+// Chapter 1 — EXTRATERRESTRIAL HIGHWAY (pseudo-3D driving)
+// Sizes are in "road units": the road spans -1..+1, each lane is 1 unit wide.
+// ---------------------------------------------------------------------------
+export const CH1 = {
+  SEGMENT_LENGTH: 200,     // world length of one road segment
+  RUMBLE_LENGTH: 3,        // segments per light/dark stripe (sense of speed)
+  ROAD_WIDTH: 2000,        // half-width of the road in world units
+  DRAW_DISTANCE: 150,      // segments drawn ahead (lower = faster on old phones)
+  CAMERA_HEIGHT: 1000,
+  FOV: 100,
+  MAX_SPEED: 7400,         // world units / sec
+  ACCEL: 2200,
+  OFFROAD_LIMIT: 0.38,     // off the asphalt, speed is capped to this fraction
+  OFFROAD_DECEL: 6000,
+  STEER: 2.1,              // lane widths per second at full speed
+  CENTRIFUGAL: 0.32,       // how hard curves push you outward
+  BOOST_MULT: 1.35,
+  BOOST_SECONDS: 2.6,
+  BOOST_START: 0.5,        // boost meter at the start (0..1)
+  BOOST_PER_COIN: 0.035,
+  BOOST_COST: 0.34,
+  MAX_DENTS: 4,            // hits before the van has to restart from the last mile marker
+  SNIFF_COOLDOWN_MS: 3500,
+  SNIFF_RANGE: 200,        // segments ahead Zeus can smell golden bitcoins
+  BARK_RANGE: 110,         // segments ahead cows hear Zeus
+  PAR_TIME: 170,           // seconds for the SPEEDY bonus
+  MPH_PER_UNIT: 1 / 74,    // speedometer display scale
+};
+
+// ---------------------------------------------------------------------------
 // Chapter 5 — UNDERGROUND (side-scrolling run & gun)
 // Level design rule of thumb (checked automatically by tools/reach-check.mjs):
 // with these numbers Ben clears 4 tiles up and ~5 tiles across.
@@ -120,4 +150,35 @@ export const TITLE = {
 export const ECONOMY = {
   COIN_VALUE: 10,         // sats per normal coin
   GOLDEN_VALUE: 250,      // sats per golden bitcoin
+  COMPLETE_BONUS: 150,    // sats for finishing any chapter
+  FAST_BONUS: 100,        // extra sats for beating a chapter's par time
+  CLEAN_BONUS: 100,       // extra sats for a "clean" run (no hits / not spotted, per chapter)
+  STAR_COIN_SHARE: 0.6,   // collect this share of a chapter's coins for the 2nd star
+};
+
+// ---------------------------------------------------------------------------
+// THE VAN shop. A full playthrough earns roughly 7–9k sats, enough for most
+// (but not all) of this. `prices` has one entry per upgrade level.
+// ---------------------------------------------------------------------------
+export const SHOP = {
+  upgrades: [
+    { id: 'benHealth',  who: 'ben',  name: 'EXTRA HEART',     desc: '+1 max heart. Hot dogs for breakfast.', prices: [150, 320, 520] },
+    { id: 'benSpeed',   who: 'ben',  name: 'COMFY SNEAKERS',  desc: '+7% run speed per level.',              prices: [120, 280] },
+    { id: 'blaster',    who: 'ben',  name: 'BLASTER MOD',     desc: '+1 damage per level. Faster firing.',   prices: [220, 420, 680] },
+    { id: 'zeusSniff',  who: 'zeus', name: 'SUPER SNIFFER',   desc: '+40 sniff radius per level.',           prices: [100, 240] },
+    { id: 'zeusBark',   who: 'zeus', name: 'BIG BARK',        desc: '+0.7s guard stun per level.',           prices: [100, 240] },
+    { id: 'zeusDig',    who: 'zeus', name: 'POWER PAWS',      desc: 'Zeus digs 35% faster per level.',       prices: [80, 180] },
+    { id: 'zeusTackle', who: 'zeus', name: 'ZOOMIES',         desc: '-25% tackle cooldown per level.',       prices: [160, 320] },
+  ],
+  cosmetics: [
+    { id: 'bandana_red',  slot: 'bandana', name: 'RED BANDANA',    color: '#d63a3a', price: 80 },
+    { id: 'bandana_cyan', slot: 'bandana', name: 'ALIEN BANDANA',  color: '#3cf2ff', price: 90 },
+    { id: 'bandana_btc',  slot: 'bandana', name: 'BTC BANDANA',      color: '#f7931a', price: 140 },
+    { id: 'cap_foil',     slot: 'cap',     name: 'FULL FOIL CAP',  color: '#c8d4e0', dark: '#8a98aa', price: 120 },
+    { id: 'cap_green',    slot: 'cap',     name: 'GREY-GREEN CAP', color: '#5dbf6a', dark: '#2f7a40', price: 120 },
+    { id: 'cap_gold',     slot: 'cap',     name: 'SATOSHI GOLD',   color: '#f5c060', dark: '#b87828', price: 260 },
+    { id: 'van_sunset',   slot: 'van',     name: 'SUNSET PAINT',   paint: 'sunset', price: 260 },
+    { id: 'van_alien',    slot: 'van',     name: 'ALIEN PAINT',    paint: 'alien', price: 320 },
+    { id: 'van_stealth',  slot: 'van',     name: 'STEALTH PAINT',  paint: 'stealth', price: 320 },
+  ],
 };

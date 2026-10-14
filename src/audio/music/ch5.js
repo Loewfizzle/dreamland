@@ -61,7 +61,7 @@ export default {
     B: { bars: 8, chords: ['Bb', 'C', 'Dm', 'Dm', 'Gm', 'Bb', 'A', 'A'],
       play: { drone: 'droneP', pad: 'chords', bass: 'bassB', arp: 'arpA', drums: 'drB', drums2: 'dr2A', lead: 'leadA', arpHot: 'arpHotP', alien: 'alienP' } },
     // breather (used for dialogue / the rig discovery)
-    reveal: { bars: 4, chords: ['Dm', 'Bb', 'F', 'A'],
+    reveal: { bars: 4, loop: true, chords: ['Dm', 'Bb', 'F', 'A'],
       play: { pad: 'chords', alien: 'alienP', bell: 'bellP', drums: 'drSparse' } },
   },
   order: ['A', 'B'],

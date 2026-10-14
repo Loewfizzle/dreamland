@@ -21,13 +21,55 @@ export const SPEAKERS = {
   ben:  { name: 'BEN',  color: P.btc,   voice: { pitch: 190, wave: 'square' } },
   zeus: { name: 'ZEUS', color: P.gold1, voice: { pitch: 430, wave: 'triangle' } },
   agent:{ name: 'AGENT',color: P.chrome1, voice: { pitch: 120, wave: 'sawtooth' } },
-  radio:{ name: 'RADIO',color: P.cyan1, voice: { pitch: 300, wave: 'sawtooth' } },
+  radio:{ name: 'RADIO',color: P.cyan1, voice: { pitch: 300, wave: 'sawtooth' }, portrait: 'agent' },
 };
 
 const CPS = 46;                      // typewriter characters per second
 const PAUSE = { '.': 160, '!': 160, '?': 160, ',': 80, '—': 120 };
 
 export const Dialogue = {
+  /**
+   * Non-blocking "radio" lines: a compact banner at the top that types out and
+   * auto-advances. Gameplay and controls keep running underneath.
+   */
+  ambient(scene, lines, { depth = 1900 } = {}) {
+    return new Promise((resolve) => {
+      const root = scene.add.container(W / 2, -40).setScrollFactor(0).setDepth(depth);
+      const bg = scene.add.graphics();
+      const bw = 440, bh = 46;
+      const portrait = scene.add.sprite(-bw / 2 + 20, 0, 'portrait_ben', 0).setScale(0.75);
+      const name = headText(scene, -bw / 2 + 42, -14, '', 8, P.btc, { ox: 0 });
+      const text = bodyText(scene, -bw / 2 + 42, -8, '', 16, P.white, { wrap: bw - 52, lineSpacing: -5 });
+      root.add([bg, portrait, name, text]);
+      scene.tweens.add({ targets: root, y: 66, duration: 250, ease: 'Back.Out' });
+      let i = 0;
+      const next = () => {
+        if (i >= lines.length || !root.active) {
+          scene.tweens.add({ targets: root, y: -40, duration: 200, onComplete: () => { root.destroy(); resolve(); } });
+          return;
+        }
+        const line = lines[i++];
+        const sp = SPEAKERS[line.who] ?? SPEAKERS.ben;
+        bg.clear();
+        bg.fillStyle(hexNum(P.ink), 0.88).fillRect(-bw / 2, -bh / 2, bw, bh);
+        bg.lineStyle(1, hexNum(sp.color), 1).strokeRect(-bw / 2, -bh / 2, bw, bh);
+        portrait.setTexture(`portrait_${sp.portrait ?? line.who}`).setFrame(portraitFrame(sp.portrait ?? line.who, line.mood ?? 'happy'));
+        name.setText(sp.name).setColor(sp.color);
+        let n = 0;
+        const ev = scene.time.addEvent({
+          delay: 1000 / CPS, repeat: line.text.length - 1, callback: () => {
+            n++;
+            text.setText(line.text.slice(0, n));
+            if (n % 3 === 0 && line.text[n - 1] !== ' ') Audio.sfx('blip', { ...sp.voice, volume: 0.4, minGap: 0 });
+          },
+        });
+        void ev;
+        scene.time.delayedCall((line.text.length / CPS) * 1000 + 1500, next);
+      };
+      next();
+    });
+  },
+
   /** Play a list of lines. Resolves when finished or skipped. */
   play(scene, lines, { depth = 2000 } = {}) {
     return new Promise((resolve) => {
@@ -76,7 +118,7 @@ export const Dialogue = {
         const s = SPEAKERS[line.who] ?? SPEAKERS.ben;
         if (line.who !== speaker) {
           speaker = line.who;
-          portrait.setTexture(`portrait_${line.who}`);
+          portrait.setTexture(`portrait_${s.portrait ?? line.who}`);
           name.setText(s.name);
           nameBg.width = s.name.length * 8 + 14;
           nameBg.setFillStyle(hexNum(s.color));
@@ -85,7 +127,7 @@ export const Dialogue = {
           portrait.setScale(0.6);
           scene.tweens.add({ targets: portrait, scale: 1, duration: 220, ease: 'Back.Out' });
         }
-        portrait.setFrame(portraitFrame(line.who, line.mood ?? 'happy'));
+        portrait.setFrame(portraitFrame((SPEAKERS[line.who] ?? {}).portrait ?? line.who, line.mood ?? 'happy'));
         if (line.mood === 'shocked' || line.mood === 'angry' || line.mood === 'alert' || line.mood === 'excited') {
           scene.tweens.add({ targets: portrait, x: { from: 44, to: 48 }, duration: 40, repeat: 4, yoyo: true });
         }

@@ -128,7 +128,40 @@ function zeusFace(pc, mood) {
   pc.outline(P.outline);
 }
 
+// ---------------------------------------------------------------------------
+function agentFace(pc, mood) {
+  const s0 = P.skin0, s1 = P.skin1, s2 = P.skin2;
+  // black suit, white shirt, thin tie
+  pc.ellipse(24, 52, 22, 13, '#26263c');
+  pc.poly([[18, 38], [24, 48], [30, 38]], P.white);
+  pc.poly([[23, 40], [25, 40], [26, 47], [24, 49], [22, 47]], P.red2);
+  pc.line(17, 39, 22, 47, '#3a3a56'); pc.line(31, 39, 26, 47, '#3a3a56');      // lapels
+  pc.rect(20, 33, 9, 7, s2);
+  // square jaw
+  pc.ellipse(24, 23, 11, 13, s1);
+  pc.rect(14, 24, 21, 10, s1);
+  pc.hline(15, 33, 34, s2);
+  for (let y = 16; y < 34; y++) pc.px(34, y, s2);
+  pc.ellipse(18, 27, 3, 2, s0);
+  pc.ellipse(12, 24, 2, 3, s2); pc.ellipse(36, 24, 2, 3, s2);
+  pc.vline(37, 24, 32, '#b5c0cc'); pc.px(37, 33, '#8a94a4');                    // earpiece coil
+  // slick hair
+  pc.ellipse(24, 12, 12, 6, P.ink); pc.rect(12, 12, 4, 8, P.ink); pc.rect(32, 12, 4, 6, P.ink);
+  pc.line(16, 9, 30, 8, '#3a3a56');
+  // sunglasses (never come off)
+  pc.rect(14, 19, 9, 5, P.ink); pc.rect(26, 19, 9, 5, P.ink); pc.hline(22, 26, 20, P.ink);
+  pc.hline(15, 20, 20, '#5a5a7a'); pc.hline(27, 32, 20, '#5a5a7a');
+  if (mood === 'smug') { pc.px(16, 21, P.white); pc.px(28, 21, P.white); }
+  // mouth
+  pc.vline(25, 24, 27, s2); pc.hline(23, 26, 28, s2);
+  if (mood === 'smug') { pc.hline(21, 27, 30, '#7a4040'); pc.px(28, 29, '#7a4040'); }
+  else pc.hline(20, 28, 30, '#7a4040');
+  pc.outline(P.outline);
+}
+PORTRAITS.agent = ['stern', 'smug'];
+
 export function makePortraits(scene) {
+  buildSheet(scene, 'portrait_agent', 48, 48, PORTRAITS.agent.map((m) => (pc) => agentFace(pc, m)));
   buildSheet(scene, 'portrait_ben', 48, 48, PORTRAITS.ben.map((m) => (pc) => benFace(pc, m)));
   buildSheet(scene, 'portrait_zeus', 48, 48, PORTRAITS.zeus.map((m) => (pc) => zeusFace(pc, m)));
 }

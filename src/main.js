@@ -12,8 +12,13 @@ import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
 import SettingsScene from './scenes/SettingsScene.js';
 import ControlsScene from './scenes/ControlsScene.js';
+import Chapter1Scene from './scenes/Chapter1Scene.js';
 import Chapter5Scene from './scenes/Chapter5Scene.js';
 import PauseScene from './scenes/PauseScene.js';
+import ResultsScene from './scenes/ResultsScene.js';
+import MapScene from './scenes/MapScene.js';
+import VanShopScene from './scenes/VanShopScene.js';
+import IntroScene from './scenes/IntroScene.js';
 import CreditsScene from './scenes/CreditsScene.js';
 
 installMobileGuards();
@@ -39,7 +44,7 @@ const game = new Phaser.Game({
   pipeline: { FilmFX },
   audio: { noAudio: true },          // we run our own Web Audio engine
   disableContextMenu: true,
-  scene: [BootScene, TitleScene, SettingsScene, ControlsScene, PauseScene, Chapter5Scene, CreditsScene],
+  scene: [BootScene, TitleScene, IntroScene, MapScene, VanShopScene, ResultsScene, Chapter1Scene, Chapter5Scene, CreditsScene, PauseScene, SettingsScene, ControlsScene],
 });
 
 initRotateScreen(game);

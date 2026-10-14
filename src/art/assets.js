@@ -12,6 +12,10 @@ import { makeVan, makeUFO, makeCampfire, makeCoins } from './props.js';
 import { generateEnemies } from './enemies.js';
 import { makePortraits } from './portraits.js';
 import { makeLabTiles, makeLabFar, makeLabMid, makeLabProps, makeCombatFX } from './lab.js';
+import { makeWorldMap, makeMapIcons } from './map.js';
+import { makeVanInterior } from './van_interior.js';
+import { makeTrailerInterior, makeTrailerExterior, makeSUV, makeNote } from './cutscene.js';
+import { makeVanRear, makeZeusWindow, makeSuvRear, makeRoadblock, makeCow, makeRoadside } from './road.js';
 import { makeLogo, makeSign, makePost, makePanel, makeIcons, makeTouchArt, makeGlyphs, makeRatingStar } from './ui.js';
 
 /** key -> { url, frameWidth?, frameHeight? }   e.g.  van: { url: 'assets/sprites/van.png' } */
@@ -70,4 +74,11 @@ export const ART_STEPS = [
   { keys: ['lab_mid', 'lab_mid_glow'], gen: (s) => makeLabMid(s) },
   { keys: ['tank', 'rack', 'terminal', 'rig'], gen: (s) => makeLabProps(s) },
   { keys: ['bolt', 'boom'], gen: (s) => makeCombatFX(s) },
+  // --- Chapter 1: the highway
+  { keys: ['sky_golden'], gen: (s) => makeSky(s, 'sky_golden', SKIES.golden, 640, 260) },
+  { keys: ['van_rear', 'zeus_window', 'suv_rear', 'roadblock', 'cow', 'pole'], gen: (s) => { makeVanRear(s); makeZeusWindow(s); makeSuvRear(s); makeRoadblock(s); makeCow(s); makeRoadside(s); } },
+  // --- hub screens & cutscenes
+  { keys: ['worldmap'], gen: (s) => { makeWorldMap(s); makeMapIcons(s); } },
+  { keys: ['van_interior'], gen: (s) => makeVanInterior(s) },
+  { keys: ['trailer_in', 'trailer_out', 'suv', 'note'], gen: (s) => { makeTrailerInterior(s); makeTrailerExterior(s); makeSUV(s); makeNote(s); } },
 ];

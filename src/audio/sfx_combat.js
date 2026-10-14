@@ -289,3 +289,49 @@ Object.assign(LOOPS, {
     return loopHandle(e, out, [a]);
   },
 });
+
+// ---- shop & UI extras --------------------------------------------------------
+Object.assign(SFX, {
+  // Cash register "ka-ching": bell partials + a drawer thunk.
+  cash(e, out, t) {
+    const ctx = e.ctx;
+    SFX.thud(e, out, t);
+    [[1568, 0.05], [2093, 0.11]].forEach(([f, d]) => {
+      for (const [ratio, a] of [[1, 0.2], [2.4, 0.08], [3.9, 0.04]]) {
+        tone(ctx, 'sine', f * ratio, t + d, t + d + 0.7).connect(gainEnv(ctx, t + d, a, 0.002, 0.6)).connect(out);
+      }
+    });
+    SFX.sparkle(e, out, t + 0.12, { count: 6 });
+    return 0.9;
+  },
+  // Not enough sats: sad trombone-ish two notes.
+  denied(e, out, t) {
+    const ctx = e.ctx;
+    [[220, 0], [196, 0.16]].forEach(([f, d]) => {
+      const o = tone(ctx, 'sawtooth', f, t + d, t + d + 0.25);
+      o.frequency.linearRampToValueAtTime(f * 0.94, t + d + 0.22);
+      o.connect(filter(ctx, 'lowpass', 900)).connect(gainEnv(ctx, t + d, 0.15, 0.01, 0.22)).connect(out);
+    });
+    return 0.45;
+  },
+  // SUV engines roaring up + tire screech (intro raid)
+  screech(e, out, t) {
+    const ctx = e.ctx;
+    const bp = filter(ctx, 'bandpass', 2600, 6);
+    bp.frequency.linearRampToValueAtTime(1900, t + 0.7);
+    noise(e, t, 0.8).connect(bp).connect(gainEnv(ctx, t, 0.35, 0.03, 0.7)).connect(out);
+    return 0.9;
+  },
+  knock(e, out, t) {
+    for (let i = 0; i < 3; i++) SFX.thud(e, out, t + i * 0.18);
+    return 0.7;
+  },
+  glitch(e, out, t) {
+    const ctx = e.ctx;
+    for (let i = 0; i < 8; i++) {
+      const ti = t + i * 0.045;
+      tone(ctx, 'square', rnd(200, 2400), ti, ti + 0.04).connect(filter(ctx, 'lowpass', 4000)).connect(gainEnv(ctx, ti, 0.08, 0.001, 0.035)).connect(out);
+    }
+    return 0.4;
+  },
+});

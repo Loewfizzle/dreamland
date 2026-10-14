@@ -10,8 +10,8 @@ Built with **Phaser 3 + Vite + plain JavaScript**. Every sprite is hand-crafted 
 |---|---|
 | 1. Engine, controls, save, audio engine, title screen | ✅ done |
 | ★ Vertical slice: Chapter 5 "Underground" (full quality bar) | ✅ playable |
-| 2. Dialogue/cutscenes, intro, chapter map, van shop, results | ⏳ next (dialogue system already built) |
-| 3. Chapters 1–6 | — |
+| 2. Dialogue/cutscenes, intro, chapter map, van shop, results | ✅ done |
+| 3. Chapters 1–6 | 🚧 Ch1 ✅  Ch5 ✅  — Ch2, Ch3, Ch4, Ch6 next |
 | 4. Ending, credits, post-credits stinger | — |
 | 5. Polish pass | — |
 | 6. Deploy docs | — |
@@ -44,7 +44,7 @@ npm run preview   # serve the build locally
 
 `npm run check` simulates Ben's real jump physics over the Chapter 5 layout and fails if any coin, golden bitcoin, hot dog or platform can't be reached.
 
-Dev shortcut: add `#Chapter5` (or `#Chapter5@120` to start at tile column 120) to the URL to jump straight into the chapter.
+Dev shortcuts: add `#Chapter1`, `#Chapter5`, `#Map`, `#VanShop` or `#Intro` to the URL to jump straight there. `#Chapter5@120` starts at tile column 120; `#Chapter1@3000` starts at road segment 3000.
 
 ## Controls
 

@@ -7,6 +7,7 @@ import { GAME } from '../config.js';
 import { ART_STEPS, FILE_OVERRIDES } from '../art/assets.js';
 import { P, hexNum } from '../art/palette.js';
 import { FONT_HEAD, FONT_BODY } from '../art/ui.js';
+import { applyCosmetics } from '../systems/progress.js';
 
 const QUIPS = [
   'LINING HAT WITH TINFOIL...',
@@ -66,6 +67,7 @@ export default class BootScene extends Phaser.Scene {
       // yield a frame so the bar animates and the browser stays responsive
       await new Promise((r) => requestAnimationFrame(() => r()));
     }
+    applyCosmetics(this);   // re-skin Ben, Zeus and the van with equipped cosmetics
     setProgress(1);
     quip.setText('READY.');
 

@@ -9,6 +9,7 @@ import { Input } from '../../systems/input.js';
 import { Audio } from '../../systems/audio.js';
 import { shake, vibrate } from '../../systems/fx.js';
 import { P, hexNum } from '../../art/palette.js';
+import { stat } from '../../systems/progress.js';
 
 export default class Ben extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
@@ -20,8 +21,10 @@ export default class Ben extends Phaser.Physics.Arcade.Sprite {
     this.body.setGravityY(CH5.GRAVITY);
     this.body.setMaxVelocityY(600);
     this.facing = 1;
-    this.hp = CH5.MAX_HEALTH;
-    this.maxHp = CH5.MAX_HEALTH;
+    this.maxHp = stat('maxHp', CH5.MAX_HEALTH);
+    this.hp = this.maxHp;
+    this.runSpeed = stat('runSpeed', CH5.RUN_SPEED);
+    this.fireCooldown = stat('blasterCooldown', CH5.BLASTER_COOLDOWN_MS);
     this.lastGrounded = 0;
     this.jumpPressedAt = -9999;
     this.lastShot = 0;
@@ -55,7 +58,7 @@ export default class Ben extends Phaser.Physics.Arcade.Sprite {
     if (grounded) this.lastGrounded = time;
 
     // --- horizontal: accelerate toward target speed
-    const target = ax * CH5.RUN_SPEED;
+    const target = ax * this.runSpeed;
     const acc = (grounded ? CH5.ACCEL : CH5.AIR_ACCEL) * dt;
     const vx = this.body.velocity.x;
     if (!hurt) this.body.setVelocityX(vx + Phaser.Math.Clamp(target - vx, -acc, acc));
@@ -83,7 +86,7 @@ export default class Ben extends Phaser.Physics.Arcade.Sprite {
     this.wasGrounded = grounded;
 
     // --- blaster
-    if ((Input.isDown('C') || Input.consume('C')) && time - this.lastShot > CH5.BLASTER_COOLDOWN_MS && !hurt) {
+    if ((Input.isDown('C') || Input.consume('C')) && time - this.lastShot > this.fireCooldown && !hurt) {
       this.lastShot = time;
       this.shootPoseUntil = time + 260;
       this.scene.fireBolt(this.x + this.facing * 13, this.y - 17, this.facing);

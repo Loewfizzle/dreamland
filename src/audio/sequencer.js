@@ -158,6 +158,7 @@ export class SongPlayer {
       this.bar = 0;
     } else if (this.bar >= this.section.bars) {
       this.bar = 0;
+      if (this.section.loop) return;          // looping sections repeat until something else is queued
       this.sectionIdx++;
       if (this.sectionIdx >= this.order.length) this.sectionIdx = this.song.loopTo ?? 0;
     }

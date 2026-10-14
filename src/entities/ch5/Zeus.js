@@ -10,6 +10,7 @@ import { CH5, ZEUS } from '../../config.js';
 import { Audio } from '../../systems/audio.js';
 import { shake, hitStop } from '../../systems/fx.js';
 import { P, hexNum } from '../../art/palette.js';
+import { stat } from '../../systems/progress.js';
 
 export default class Zeus extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, ben) {
@@ -31,7 +32,7 @@ export default class Zeus extends Phaser.Physics.Arcade.Sprite {
   }
 
   get grounded() { return this.body.blocked.down || this.body.touching.down || !!this.riding; }
-  get tackleReady() { return this.scene.time.now - this.lastTackle > CH5.TACKLE_COOLDOWN_MS && this.state === 'follow'; }
+  get tackleReady() { return this.scene.time.now - this.lastTackle > stat('tackleCooldown', CH5.TACKLE_COOLDOWN_MS) && this.state === 'follow'; }
 
   update(time, delta) {
     if (this.state === 'tackle') {
@@ -158,12 +159,13 @@ export default class Zeus extends Phaser.Physics.Arcade.Sprite {
         const c = this.scene.add.circle(this.x, this.y - 6, 4, hexNum(P.cyan2), 0).setStrokeStyle(2, hexNum(P.cyan2), 1).setDepth(912);
         c.setBlendMode(Phaser.BlendModes.ADD);
         this.scene.tweens.add({
-          targets: c, radius: CH5.SNIFF_RADIUS, alpha: 0, duration: 750, delay: i * 150, ease: 'Cubic.Out',
+          targets: c, radius: this.sniffRadius ?? CH5.SNIFF_RADIUS, alpha: 0, duration: 750, delay: i * 150, ease: 'Cubic.Out',
           onUpdate: () => c.setStrokeStyle(2, hexNum(P.cyan2), c.alpha), onComplete: () => c.destroy(),
         });
       }
-      this.scene.lighting?.flash(this.x, this.y - 6, CH5.SNIFF_RADIUS, 0x3cf2ff, 700, 0.5);
-      onReveal?.(this.x, this.y - 6, CH5.SNIFF_RADIUS);
+      const rad = this.sniffRadius ?? CH5.SNIFF_RADIUS;
+      this.scene.lighting?.flash(this.x, this.y - 6, rad, 0x3cf2ff, 700, 0.5);
+      onReveal?.(this.x, this.y - 6, rad);
     });
     this.scene.time.delayedCall(1000, () => { if (this.state === 'sniff') this.state = 'follow'; });
     return true;
