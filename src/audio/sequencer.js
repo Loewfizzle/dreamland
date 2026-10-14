@@ -179,6 +179,8 @@ export class SongPlayer {
     for (const [lname, patName] of Object.entries(sec.play)) {
       const layer = this.layers[lname];
       if (!layer) continue;
+      // muted adaptive layers don't synthesize anything (big CPU saver on phones)
+      if (layer.level < 0.02 && layer.def.inst !== 'theremin') continue;
       const inst = INSTRUMENTS[layer.def.inst];
       if (patName === 'chords') {
         if (ch && ch.changes) {

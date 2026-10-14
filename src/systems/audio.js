@@ -21,6 +21,19 @@ import { SAMPLES } from '../audio/samples.js';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
+// Frequently repeated sounds are rendered ONCE into small buffers (a few random
+// variants each) and then played back cheaply. Building them from dozens of
+// oscillator/filter nodes every footstep is what overloads phone audio.
+// name -> number of variants. Keys may depend on opts (see bakeKey).
+const BAKE = {
+  step_sand: 4, step_metal: 4, jingle: 4, blip: 1, ui_hover: 1, ui_click: 1, ui_toggle: 1,
+  coin: 1, land: 2, jump: 2, hit: 3, blaster: 3, enemy_shot: 3, sniff: 1, fire_pop: 3,
+  drip: 3, buzz: 2, bark: 4, boof: 1, pant: 1, ricochet: 2, grunt: 3, thud: 2,
+};
+// Low-priority sounds get dropped first when too many voices are playing.
+const LOW_PRIORITY = new Set(['step_sand', 'step_metal', 'jingle', 'blip', 'drip', 'fire_pop', 'buzz', 'ui_hover']);
+const MAX_VOICES = 24;
+
 class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -32,6 +45,7 @@ class AudioEngine {
     this.samples = {};
     this.lastPlayed = {};
     this.unlockCallbacks = [];
+    this.voices = 0;
   }
 
   // ---------------------------------------------------------------------------
@@ -60,6 +74,15 @@ class AudioEngine {
       else this.ctx.resume().then(done).catch(() => { /* try again next gesture */ });
     };
     events.forEach((ev) => window.addEventListener(ev, unlock, true));
+
+    // Watchdog: phones can suspend/interrupt the AudioContext at any time
+    // (screen dim, notifications, Bluetooth, iOS "interrupted"). Any tap or key
+    // press brings it back.
+    const revive = () => {
+      if (this.ctx && this.unlocked && this.ctx.state !== 'running' && !document.hidden) this.ctx.resume().catch(() => {});
+    };
+    ['pointerdown', 'touchend', 'keydown'].forEach((ev) => window.addEventListener(ev, revive, true));
+    setInterval(revive, 2000);
 
     // Pause audio when the tab/app goes to the background.
     document.addEventListener('visibilitychange', () => {
@@ -276,7 +299,9 @@ class AudioEngine {
     const nowMs = performance.now();
     const gap = opts.minGap ?? 30;
     if (this.lastPlayed[name] && nowMs - this.lastPlayed[name] < gap) return;
+    if (this.voices >= MAX_VOICES && LOW_PRIORITY.has(name)) return;   // phone-friendly voice cap
     this.lastPlayed[name] = nowMs;
+    this.voices = (this.voices ?? 0) + 1;
 
     const t = ctx.currentTime + (opts.delay ?? 0);
     const out = ctx.createGain();
@@ -297,7 +322,15 @@ class AudioEngine {
     }
 
     let dur = 1;
-    if (this.samples[name]) {
+    const baked = !this.samples[name] && BAKE[name] ? this.getBaked(name, opts) : null;
+    if (baked) {
+      const src = ctx.createBufferSource();
+      src.buffer = baked;
+      src.playbackRate.value = name === 'blip' ? 0.95 + Math.random() * 0.1 : 1;
+      src.connect(out);
+      src.start(t);
+      dur = baked.duration;
+    } else if (this.samples[name]) {
       const src = ctx.createBufferSource();
       src.buffer = this.samples[name];
       src.playbackRate.value = opts.pitch ?? 1;
@@ -309,7 +342,56 @@ class AudioEngine {
     } else {
       console.warn(`[audio] unknown sfx "${name}"`);
     }
-    setTimeout(() => { try { out.disconnect(); tail.disconnect(); } catch (_) { /* noop */ } }, (dur + 1.5 + (opts.delay ?? 0)) * 1000);
+    setTimeout(() => {
+      this.voices = Math.max(0, this.voices - 1);
+      try { out.disconnect(); tail.disconnect(); } catch (_) { /* noop */ }
+    }, (dur + 0.3 + (opts.delay ?? 0)) * 1000);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Baked SFX cache
+  // ---------------------------------------------------------------------------
+  bakeKey(name, opts) {
+    if (name === 'coin') return `coin:${opts.combo ?? 0}`;
+    if (name === 'blip') return `blip:${Math.round(opts.pitch ?? 260)}:${opts.wave ?? 'square'}`;
+    if (name === 'bark') return `bark:${(opts.pitch ?? 1).toFixed(2)}`;
+    if (name === 'grunt') return `grunt:${(opts.pitch ?? 1).toFixed(2)}`;
+    return name;
+  }
+
+  /** Returns a ready buffer (random variant) or null while it's still rendering. */
+  getBaked(name, opts) {
+    this.baked = this.baked ?? new Map();
+    const key = this.bakeKey(name, opts);
+    const entry = this.baked.get(key);
+    if (entry) return entry.ready ? entry.bufs[Math.floor(Math.random() * entry.bufs.length)] : null;
+    const e = { ready: false, bufs: [] };
+    this.baked.set(key, e);
+    this.renderVariants(name, opts, BAKE[name]).then((bufs) => { e.bufs = bufs; e.ready = bufs.length > 0; })
+      .catch((err) => { console.warn('[audio] bake failed', name, err); this.baked.delete(key); BAKE[name] = 0; });
+    return null;   // first call plays live; later calls use the baked buffer
+  }
+
+  async renderVariants(name, opts, n) {
+    const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!OAC) return [];
+    const sr = this.ctx.sampleRate;
+    const bufs = [];
+    for (let i = 0; i < n; i++) {
+      const off = new OAC(1, Math.ceil(sr * 1.6), sr);
+      const fake = { ctx: off, noise: this.noise };
+      const g = off.createGain();
+      g.connect(off.destination);
+      // volume/pan are applied at playback time, so bake at unity
+      const dur = Math.min(1.5, (SFX[name](fake, g, 0, { ...opts, delay: 0, volume: undefined, pan: undefined }) ?? 1) + 0.05);
+      const rendered = await off.startRendering();
+      // trim to the sound's real length to keep memory small
+      const len = Math.ceil(sr * dur);
+      const buf = this.ctx.createBuffer(1, len, sr);
+      buf.copyToChannel(rendered.getChannelData(0).subarray(0, len), 0);
+      bufs.push(buf);
+    }
+    return bufs;
   }
 
   /** Start a looping sound. Returns a handle { set({volume,pan,...}), stop(fade) } or a dummy. */

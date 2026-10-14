@@ -37,7 +37,7 @@ const easeInOut = (a, b, t) => a + (b - a) * ((-Math.cos(t * Math.PI) / 2) + 0.5
 // sprite sizes in road units (half-road widths)
 const SIZE = {
   pole: 0.09, joshua_big: 0.55, joshua_med: 0.4, cactus: 0.14, sagebush: 0.2, boulder: 0.32, milemarker: 0.06,
-  sign_et: 0.75, sign_cow: 0.22, billboard0: 0.95, billboard1: 0.95, billboard2: 0.95, sign_rachel: 1.1,
+  sign_et: 1.0, sign_cow: 0.22, billboard0: 0.95, billboard1: 0.95, billboard2: 0.95, sign_rachel: 1.1,
   suv_rear: 0.34, roadblock: 0.5, cow: 0.38, coin: 0.085, golden: 0.13,
 };
 

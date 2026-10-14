@@ -23,6 +23,29 @@ function stamp(pc, text, cx, y, color, px = 8, font = FONT_HEAD, outline = null)
 }
 
 // ---------------------------------------------------------------------------
+//  Tiny hand-made 3x5 pixel font for labels too small for a real font
+// ---------------------------------------------------------------------------
+const TINY = {
+  A: ['.#.', '#.#', '###', '#.#', '#.#'], B: ['##.', '#.#', '##.', '#.#', '##.'], D: ['##.', '#.#', '#.#', '#.#', '##.'], E: ['###', '#..', '##.', '#..', '###'],
+  F: ['###', '#..', '##.', '#..', '#..'], G: ['.##', '#..', '#.#', '#.#', '.##'], H: ['#.#', '#.#', '###', '#.#', '#.#'],
+  I: ['###', '.#.', '.#.', '.#.', '###'], L: ['#..', '#..', '#..', '#..', '###'], M: ['#.#', '###', '###', '#.#', '#.#'],
+  N: ['#.#', '###', '###', '###', '#.#'], O: ['.#.', '#.#', '#.#', '#.#', '.#.'], P: ['##.', '#.#', '##.', '#..', '#..'],
+  R: ['##.', '#.#', '##.', '#.#', '#.#'], S: ['.##', '#..', '.#.', '..#', '##.'], T: ['###', '.#.', '.#.', '.#.', '.#.'],
+  W: ['#.#', '#.#', '###', '###', '#.#'], C: ['.##', '#..', '#..', '#..', '.##'], K: ['#.#', '#.#', '##.', '#.#', '#.#'],
+  ' ': ['...', '...', '...', '...', '...'],
+};
+/** Draw centred tiny text (3x5 glyphs, 1px spacing). */
+export function tiny(pc, text, cx, y, color) {
+  const w = text.length * 4 - 1;
+  let x = Math.round(cx - w / 2);
+  for (const ch of text.toUpperCase()) {
+    const g = TINY[ch];
+    if (g) pc.map(g, { '#': color }, x, y);
+    x += 4;
+  }
+}
+
+// ---------------------------------------------------------------------------
 //  Ground
 // ---------------------------------------------------------------------------
 export function makeTownGround(scene) {
@@ -86,23 +109,24 @@ export function makeTownGround(scene) {
 //  The Little A'Le'Inn (exterior, 3/4 view) — 260 x 176 + glow layer
 // ---------------------------------------------------------------------------
 export function makeDiner(scene) {
-  const W = 260, H = 176;
+  const W = 300, H = 176;
   const pc = new PixelCanvas(W, H);
   const glow = new PixelCanvas(W, H);
+  pc.ox = glow.ox = 20;        // building is 260 wide, centred in a 300 canvas; the sign overhangs it
   // roof (seen from above): tar & gravel with an AC unit
   for (let y = 44; y < 96; y++) for (let x = 8; x < 252; x++) pc.px(x, y, ((x * 3 + y * 7) % 11) < 2 ? '#5a5050' : (y % 6 === 0 ? '#625858' : '#6a6060'));
   pc.hline(8, 251, 44, '#8a8080'); pc.hline(8, 251, 95, '#3a3030');
   pc.rect(196, 54, 30, 22, '#9aa0aa'); pc.hline(196, 225, 54, '#c0c6ce'); for (let x = 200; x < 222; x += 3) pc.vline(x, 58, 72, '#6a707a');
   // the big rooftop sign (posts + board)
   for (const x of [52, 196]) pc.rect(x, 30, 5, 22, '#4a4a52');
-  pc.rect(20, 0, 220, 36, '#2a1a3a'); pc.rect(22, 2, 216, 32, '#3a2450');
-  for (let x = 22; x < 238; x += 6) { pc.px(x, 2, '#5a3a70'); pc.px(x + 3, 33, '#5a3a70'); }
-  stamp(pc, "LITTLE A'LE'INN", 130, 9, '#ffd0e8', 16, FONT_HEAD, '#a02a6a');
-  stamp(glow, "LITTLE A'LE'INN", 130, 9, '#ff5aa8', 16, FONT_HEAD, '#7a1a50');
-  // neon alien head on the sign's left
-  pc.ellipse(34, 18, 7, 9, '#2a6a3a'); glow.ellipse(34, 18, 7, 9, '#3a9a4a');
-  pc.ellipse(34, 17, 5, 7, '#5dff9a'); glow.ellipse(34, 17, 5, 7, '#5dff9a');
-  for (const [x0, d] of [[31, -1], [37, 1]]) { pc.poly([[x0, 16], [x0 + d * 3, 14], [x0 + d * 3, 18], [x0, 19]], P.ink); glow.poly([[x0, 16], [x0 + d * 3, 14], [x0 + d * 3, 18], [x0, 19]], '#000000'); }
+  pc.rect(-14, 0, 288, 36, '#2a1a3a'); pc.rect(-12, 2, 284, 32, '#3a2450');
+  for (let x = -12; x < 272; x += 6) { pc.px(x, 2, '#5a3a70'); pc.px(x + 3, 33, '#5a3a70'); }
+  stamp(pc, "LITTLE A'LE'INN", 140, 9, '#ffd0e8', 16, FONT_HEAD, '#a02a6a');
+  stamp(glow, "LITTLE A'LE'INN", 140, 9, '#ff5aa8', 16, FONT_HEAD, '#7a1a50');
+  // neon alien head on the sign's left, clear of the lettering
+  pc.ellipse(-2, 18, 7, 9, '#2a6a3a'); glow.ellipse(-2, 18, 7, 9, '#3a9a4a');
+  pc.ellipse(-2, 17, 5, 7, '#5dff9a'); glow.ellipse(-2, 17, 5, 7, '#5dff9a');
+  for (const [x0, d] of [[-5, -1], [1, 1]]) { pc.poly([[x0, 16], [x0 + d * 3, 14], [x0 + d * 3, 18], [x0, 19]], P.ink); glow.poly([[x0, 16], [x0 + d * 3, 14], [x0 + d * 3, 18], [x0, 19]], '#000000'); }
   // front wall: weathered siding
   for (let y = 96; y < 160; y++) for (let x = 8; x < 252; x++) {
     let c = (y % 6 === 0) ? '#a07a52' : '#b88c60';
@@ -122,19 +146,20 @@ export function makeDiner(scene) {
   // door with OPEN sign
   pc.rect(116, 112, 28, 46, '#5a3a24'); pc.rect(119, 115, 22, 20, '#ffcf7a'); glow.rect(119, 115, 22, 20, '#d08a30');
   pc.rect(121, 120, 18, 7, '#1a1a2a');
-  stamp(pc, 'OPEN', 130, 121, '#ff5a7a', 8, FONT_BODY);
-  stamp(glow, 'OPEN', 130, 121, '#ff3a5a', 8, FONT_BODY);
+  tiny(pc, 'OPEN', 130, 121, '#ff7a9a');
+  tiny(glow, 'OPEN', 130, 121, '#ff3a5a');
   pc.px(139, 140, '#e8c060');
   // little alien mural by the door
   pc.ellipse(102, 136, 7, 9, '#4ac06a'); pc.rect(100, 145, 4, 12, '#4ac06a');
   pc.poly([[98, 134], [101, 133], [101, 137], [99, 137]], P.ink); pc.poly([[106, 134], [103, 133], [103, 137], [105, 137]], P.ink);
-  stamp(pc, 'EARTHLINGS', 158, 148, '#fff6e0', 8, FONT_BODY);
-  stamp(pc, 'WELCOME', 158, 155, '#fff6e0', 8, FONT_BODY);
+  tiny(pc, 'EARTHLINGS', 173, 143, '#fff6e0');   // between the porch posts
+  tiny(pc, 'WELCOME', 173, 150, '#fff6e0');
   // porch posts, bench, foundation
   for (const x of [8, 64, 112, 148, 196, 248]) pc.rect(x, 108, 3, 52, '#6a4a2a');
   pc.rect(20, 150, 30, 4, '#6a4a2a'); pc.rect(22, 154, 3, 5, '#4a2a1a'); pc.rect(45, 154, 3, 5, '#4a2a1a');
   pc.rect(4, 160, 252, 8, '#7a6050'); pc.hline(4, 255, 160, '#9a7a60');
   pc.rect(114, 160, 32, 6, '#8a7a6a');                               // steps
+  pc.ox = glow.ox = 0;
   pc.outline(P.outline);
   addPixelTexture(scene, 'diner_glow', glow);
   return addPixelTexture(scene, 'diner', pc);
@@ -165,7 +190,7 @@ export function makeTownProps(scene) {
       // extra antennas, a satellite dish and a hand-painted sign
       pc.vline(30, -0, 8, '#8a8a9a'); pc.ellipse(28, 2, 5, 3, '#d0d8e0');
       for (const x of [110, 118, 126]) { pc.vline(x, 0, 8, '#8a8a9a'); pc.px(x, 0, P.red); }
-      pc.rect(96, 64, 40, 12, '#e8dcc0'); stamp(pc, 'NO FEDS', 116, 66, '#c8423a', 8, FONT_BODY);
+      pc.rect(96, 64, 40, 12, '#e8dcc0'); tiny(pc, 'NO FEDS', 116, 67, '#c8423a');
     }
     pc.outline(P.outline);
     addPixelTexture(scene, `${key}_glow`, glow);
@@ -197,7 +222,7 @@ export function makeTownProps(scene) {
   pc.rect(11, 18, 4, 26, '#6a5a4a');
   pc.rect(2, 4, 22, 16, '#e8e4dc'); pc.ellipse(13, 4, 11, 3, '#e8e4dc'); pc.hline(2, 23, 19, '#a8a49c');
   pc.rect(4, 8, 18, 1, '#a8a49c'); pc.rect(22, 6, 2, 8, P.red);
-  stamp(pc, 'ALIEN', 13, 11, '#3a3a5a', 8, FONT_BODY);
+  tiny(pc, 'ALIEN', 13, 10, '#3a3a5a');
   pc.outline(P.outline);
   addPixelTexture(scene, 'mailbox', pc);
 
@@ -214,7 +239,7 @@ export function makeTownProps(scene) {
   pc.line(10, 60, 46, 90, '#6a5a4a'); pc.line(46, 60, 10, 90, '#6a5a4a');
   pc.rect(6, 10, 44, 38, '#9aa0aa'); pc.ellipse(28, 10, 22, 6, '#c0c6ce'); pc.ellipse(28, 48, 22, 4, '#7a808a');
   for (let x = 8; x < 48; x += 6) pc.vline(x, 12, 46, '#8a909a');
-  stamp(pc, 'RACHEL', 28, 24, '#3a3a5a', 8, FONT_BODY);
+  tiny(pc, 'RACHEL', 28, 26, '#3a3a5a');
   pc.outline(P.outline);
   addPixelTexture(scene, 'watertank', pc);
 
@@ -308,10 +333,10 @@ export function makeDinerInterior(scene) {
   pc.poly([[33, 28], [38, 27], [38, 33], [35, 33]], P.ink); pc.poly([[47, 28], [42, 27], [42, 33], [45, 33]], P.ink);
   // menu board: the pie order is the fuse puzzle clue!
   pc.rect(500, 6, 124, 62, '#1a1a1a'); pc.rect(502, 8, 120, 58, '#2a2a2a');
-  stamp(pc, 'TODAYS PIES', 562, 11, '#fff6e0', 8, FONT_BODY);
-  stamp(pc, '1. APPLE', 562, 25, '#f5c542', 8, FONT_BODY);
-  stamp(pc, '2. LEMON', 562, 37, '#f5c542', 8, FONT_BODY);
-  stamp(pc, '3. ELDERBERRY', 562, 49, '#f5c542', 8, FONT_BODY);
+  stamp(pc, "TODAY'S PIES", 562, 11, '#fff6e0', 16, FONT_BODY);
+  stamp(pc, '1. APPLE', 562, 25, '#f5c542', 16, FONT_BODY);
+  stamp(pc, '2. LEMON', 562, 37, '#f5c542', 16, FONT_BODY);
+  stamp(pc, '3. ELDERBERRY', 562, 49, '#f5c542', 16, FONT_BODY);
   glow.rect(504, 10, 116, 54, '#2a2418');
   // counter (pink formica with chrome edge) and stools
   pc.rect(80, 76, 480, 34, '#d87a9a'); pc.hline(80, 559, 76, '#ffb0c8'); pc.rect(80, 104, 480, 6, '#c0c6ce'); pc.hline(80, 559, 109, '#7a808a');
@@ -337,7 +362,7 @@ export function makeDinerInterior(scene) {
     pc.circle(bx + 30, 280, 5, '#f2ead2'); pc.circle(bx + 30, 280, 3, '#8a5a3a');    // a coffee cup
   }
   // the exit mat
-  pc.rect(296, 340, 48, 20, '#5a3a2a'); stamp(pc, 'COME BACK SOON', 320, 346, '#e8dcc0', 8, FONT_BODY);
+  pc.rect(296, 340, 48, 20, '#5a3a2a'); tiny(pc, 'COME BACK', 320, 347, '#e8dcc0');
   // window neon "PIE"
   pc.rect(580, 140, 50, 40, '#14102a'); stamp(pc, 'PIE', 605, 152, '#ff9ab0', 16, FONT_HEAD); stamp(glow, 'PIE', 605, 152, '#ff5a8a', 16, FONT_HEAD);
   addPixelTexture(scene, 'diner_in_glow', glow);

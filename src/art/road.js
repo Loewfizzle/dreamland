@@ -152,16 +152,16 @@ export function makeRoadside(scene) {
   addPixelTexture(scene, 'pole', pc);
 
   // EXTRATERRESTRIAL HIGHWAY state sign (green, with a flying saucer)
-  pc = new PixelCanvas(112, 84);
-  for (const x of [20, 90]) pc.rect(x, 40, 4, 44, '#8a8a9a');
-  pc.rect(2, 2, 108, 44, P.sign); pc.rect(4, 4, 104, 40, P.sign);
-  for (let x = 4; x < 108; x++) { pc.px(x, 4, P.cream); pc.px(x, 43, P.cream); }
-  for (let y = 4; y < 44; y++) { pc.px(4, y, P.cream); pc.px(107, y, P.cream); }
-  stampText(pc, 'EXTRATERRESTRIAL', 56, 9, P.white, 8);
-  stampText(pc, 'HIGHWAY', 56, 21, P.white, 8);
-  pc.ellipse(56, 37, 12, 3, '#b5c0cc'); pc.ellipse(56, 34, 4, 3, '#7ff8ff');
-  stampText(pc, '375', 92, 33, P.white, 8);
-  for (let i = 0; i < 30; i++) pc.px(6 + Math.floor(Math.random() * 100), 6 + Math.floor(Math.random() * 36), '#3a8a5a');   // sun-bleached
+  pc = new PixelCanvas(152, 84);
+  for (const x of [30, 120]) pc.rect(x, 40, 4, 44, '#8a8a9a');
+  pc.rect(2, 2, 148, 44, P.sign);
+  for (let x = 4; x < 148; x++) { pc.px(x, 4, P.cream); pc.px(x, 43, P.cream); }
+  for (let y = 4; y < 44; y++) { pc.px(4, y, P.cream); pc.px(147, y, P.cream); }
+  for (let i = 0; i < 40; i++) pc.px(7 + Math.floor(Math.random() * 138), 7 + Math.floor(Math.random() * 34), '#3a8a5a');   // sun-bleached
+  stampText(pc, 'EXTRATERRESTRIAL', 76, 9, P.white, 8);
+  stampText(pc, 'HIGHWAY', 76, 21, P.white, 8);
+  pc.ellipse(60, 37, 12, 3, '#b5c0cc'); pc.ellipse(60, 34, 4, 3, '#7ff8ff');
+  stampText(pc, '375', 104, 33, P.white, 8);
   pc.outline(P.outline);
   addPixelTexture(scene, 'sign_et', pc);
 

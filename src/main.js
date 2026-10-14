@@ -51,3 +51,4 @@ const game = new Phaser.Game({
 initRotateScreen(game);
 installOrientationLock(game);
 window.__game = game; // handy for debugging in the console
+window.__audio = Audio;
