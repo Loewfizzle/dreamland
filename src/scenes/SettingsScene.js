@@ -50,7 +50,11 @@ export default class SettingsScene extends Phaser.Scene {
       }
     });
 
-    const back = signButton(this, 0, 92, 'DONE', () => this.close(), { texture: 'sign_small', sfx: 'ui_back' });
+    const back = signButton(this, 52, 92, 'DONE', () => this.close(), { texture: 'sign_small', sfx: 'ui_back' });
+    // escape hatch if sound ever stops: rebuilds the whole audio engine
+    const reset = signButton(this, -52, 92, 'RESET AUDIO', () => { Audio.hardReset('settings button'); this.time.delayedCall(400, () => Audio.sfx('ui_confirm')); }, { texture: 'sign_small', size: 8 });
+    reset.label.setScale(0.6);
+    panel.add(reset);
     panel.add(back);
     this.input.keyboard?.on('keydown-ESC', () => this.close());
 

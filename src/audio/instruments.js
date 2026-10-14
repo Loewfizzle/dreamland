@@ -171,15 +171,14 @@ function arp(e, layer, t, freqs, dur, vel) {
     const o = ctx.createOscillator();
     if (p.wave) o.type = p.wave; else o.setPeriodicWave(pulseWave(ctx));
     o.frequency.setValueAtTime(f, t);
-    if (!layer.arpFilter) {
-      layer.arpFilter = ctx.createBiquadFilter();
-      layer.arpFilter.type = 'lowpass';
-      layer.arpFilter.frequency.value = (p.cutoff ?? 3200) * 0.7;
-      layer.arpFilter.connect(layer.input);
-    }
+    // per-note filter envelope = the arp's plucky 'blip' character (restored)
+    const filt = ctx.createBiquadFilter();
+    filt.type = 'lowpass';
+    filt.frequency.setValueAtTime(p.cutoff ?? 3200, t);
+    filt.frequency.setTargetAtTime((p.cutoff ?? 3200) * 0.4, t, 0.05);
     const g = ctx.createGain();
     const end = adsr(g.gain, t, Math.min(dur, p.gate ?? 0.09), 0.22 * vel, 0.003, 0.06, 0.4, 0.08);
-    o.connect(g).connect(layer.arpFilter);
+    o.connect(filt).connect(g).connect(layer.input);
     o.start(t);
     o.stop(end);
   }

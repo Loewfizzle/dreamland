@@ -231,13 +231,43 @@ class AudioEngine {
   /** Runs every second: resume a paused context, heal a poisoned output. */
   watchdog() {
     if (!this.ctx || !this.unlocked || document.hidden) return;
+    if (this.ctx.state === 'closed') { this.hardReset('context closed'); return; }
     if (this.ctx.state !== 'running') { this.ctx.resume().catch(() => {}); return; }
     this.probe.getFloatTimeDomainData(this.probeBuf);
     for (let i = 0; i < this.probeBuf.length; i += 8) {
-      if (!Number.isFinite(this.probeBuf[i])) { console.warn('[audio] output poisoned - rebuilding master chain'); this.buildMasterChain(); return; }
+      if (!Number.isFinite(this.probeBuf[i])) { this.hardReset('output corrupted (NaN)'); return; }
     }
     // voice bookkeeping can never drift upward forever
     if (this.voices > HARD_VOICES * 2) this.voices = 0;
+  }
+
+  /**
+   * Tear down the whole audio graph (reverbs and echo can hold corrupted samples
+   * forever) and rebuild it from scratch, then resume the current music and
+   * ambience. Used by the watchdog and the Settings 'RESET AUDIO' button.
+   */
+  async hardReset(reason = 'manual') {
+    if (this.resetting || !this.ctx) return;
+    this.resetting = true;
+    console.warn('[audio] full audio reset:', reason);
+    this.recoveries = (this.recoveries ?? 0) + 1;
+    this.lastRecovery = { reason, at: new Date().toISOString() };
+    const song = this.current?.song, section = this.current?.sectionName, amb = this.ambience?.name;
+    this.stopAmbience(0);
+    clearInterval(this.timer);
+    const old = this.ctx;
+    this.ctx = null;
+    this.current = null;
+    this.baked = new Map();
+    this.activeByName = {};
+    this.voices = 0;
+    try { await old.close(); } catch (_) { /* already closed */ }
+    this.init();
+    try { await this.ctx.resume(); } catch (_) { /* will retry on next tap */ }
+    if (song) this.playMusic(song, { fade: 1, section });
+    if (amb) this.playAmbience(amb, 1);
+    setTimeout(() => this.prewarm(), 300);
+    this.resetting = false;
   }
 
   /** Generated stereo impulse response: darkening exponential noise tail. */
