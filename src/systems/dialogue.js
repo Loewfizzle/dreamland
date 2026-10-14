@@ -13,7 +13,7 @@ import { P, hexNum } from '../art/palette.js';
 import { portraitFrame } from '../art/portraits.js';
 import { Audio } from './audio.js';
 import { Input } from './input.js';
-import { headText, bodyText } from './ui.js';
+import { headText, bodyText, pinToScreen } from './ui.js';
 
 const W = GAME.WIDTH, H = GAME.HEIGHT;
 
@@ -113,6 +113,7 @@ export const Dialogue = {
       const skip = headText(scene, W - 14, 12, 'SKIP >>', 8, P.cream, { ox: 1 }).setInteractive({ useHandCursor: true });
       skip.setAlpha(0.8);
       root.add(skip);
+      pinToScreen(root);   // so the SKIP button is tappable in scrolling scenes
 
       let idx = -1, shown = 0, full = '', typing = false, last = 0, done = false, wait = 0, speaker = null;
       const timer = scene.time.addEvent({ delay: 16, loop: true, callback: tick });

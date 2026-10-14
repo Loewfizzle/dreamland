@@ -182,3 +182,17 @@ export function fadeIn(scene, duration = 500) {
   scene._leaving = false;
   scene.cameras.main.fadeIn(duration, 11, 10, 26);
 }
+
+/**
+ * Pin a container (and everything inside it) to the screen. Phaser's
+ * container.setScrollFactor() alone doesn't move child hit areas, so taps on
+ * buttons inside a scrolled camera would miss. Call after adding children.
+ */
+export function pinToScreen(container) {
+  const walk = (o) => {
+    o.setScrollFactor?.(0);
+    o.list?.forEach(walk);
+  };
+  walk(container);
+  return container;
+}

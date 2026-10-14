@@ -11,7 +11,7 @@ import { Input } from '../systems/input.js';
 import { Lighting } from '../systems/lighting.js';
 import { Dialogue } from '../systems/dialogue.js';
 import { applyFilm, shake, vibrate } from '../systems/fx.js';
-import { headText, bodyText, goTo, fadeIn } from '../systems/ui.js';
+import { headText, bodyText, goTo, fadeIn, pinToScreen } from '../systems/ui.js';
 import { stat } from '../systems/progress.js';
 import { TOWN_W, TOWN_H } from '../art/rachel.js';
 import {
@@ -476,7 +476,7 @@ export default class Chapter2Scene extends Phaser.Scene {
     const panel = this.add.image(0, 0, 'panel').setScale(0.9, 0.85);
     root.add([dim, panel]);
     root.add(headText(this, 0, -82, 'FUSE BOX', 16, P.btc));
-    root.add(bodyText(this, 0, -62, 'Flip the breakers in the right order.', 16, P.cream2, { ox: 0.5 }));
+    root.add(bodyText(this, 0, -62, 'Tap the breakers in the right order.', 16, P.cream2, { ox: 0.5 }));
     const pies = { A: ['APPLE', '#e8b070'], L: ['LEMON', '#f5e070'], E: ['ELDERBERRY', '#a04a8a'] };
     let seq = [];
     const levers = FUSE_LAYOUT.map((letter, i) => {
@@ -494,8 +494,12 @@ export default class Chapter2Scene extends Phaser.Scene {
       root.add(c);
       return c;
     });
-    const close = headText(this, 120, -82, 'X', 16, P.cream).setInteractive({ useHandCursor: true });
+    const hint = bodyText(this, 0, 74, 'Hint: the diner menu lists things in order...', 16, P.cyan1, { ox: 0.5 });
+    root.add(hint);
+    const close = headText(this, 118, -80, 'X', 16, P.cream);
+    close.setInteractive(new Phaser.Geom.Rectangle(-10, -10, close.width + 20, close.height + 20), Phaser.Geom.Rectangle.Contains);
     root.add(close);
+    pinToScreen(root);
     const finish = (ok) => {
       this.time.delayedCall(ok ? 900 : 0, () => {
         root.destroy();
@@ -533,7 +537,8 @@ export default class Chapter2Scene extends Phaser.Scene {
         Audio.sfx('door', { volume: 0.4, delay: 0.3 });
         this.neonLights.forEach((l) => { l.intensity = 1; });
         this.dinerGlow?.setAlpha(1);
-        root.add(headText(this, 0, 80, 'THE SIGN LIGHTS UP!', 8, P.green1));
+        hint.destroy();
+        root.add(headText(this, 0, 80, 'THE SIGN LIGHTS UP!', 8, P.green1).setScrollFactor(0));
         finish(true);
         this.time.delayedCall(1000, () => { this.toast('THE LITTLE A\'LE\'INN IS LIT!', 2000, P.green1); this.checkFavours(); });
       }
