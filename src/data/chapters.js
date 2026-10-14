@@ -19,9 +19,9 @@ export const CHAPTERS = [
     map: { x: 356, y: 160 }, parTime: 280,
   },
   {
-    id: 'ch4', num: 4, title: 'THE HANGAR', place: 'HANGAR 18', scene: null,
+    id: 'ch4', num: 4, title: 'THE HANGAR', place: 'HANGAR 18', scene: 'Chapter4',
     blurb: 'Hack the blast doors before the agents close in.',
-    map: { x: 432, y: 122 },
+    map: { x: 432, y: 122 }, parTime: 240,
   },
   {
     id: 'ch5', num: 5, title: 'UNDERGROUND', place: 'SUB-LEVEL S-4', scene: 'Chapter5',

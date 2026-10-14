@@ -19,6 +19,7 @@ import { makeVanRear, makeZeusWindow, makeSuvRear, makeRoadblock, makeCow, makeR
 import { makeTopdownBen, makeTopdownZeus, makeNPCs, makeGuardTD } from './topdown.js';
 import { makeTownGround, makeDiner, makeTownProps, makeDinerInterior } from './rachel.js';
 import { makePerimeterGround, makePerimeterProps } from './perimeter.js';
+import { makeHangarFar, makeHangarFloor, makeTarpSaucer, makeHangarProps } from './hangar.js';
 import { makeLogo, makeSign, makePost, makePanel, makeIcons, makeTouchArt, makeGlyphs, makeRatingStar } from './ui.js';
 
 /** key -> { url, frameWidth?, frameHeight? }   e.g.  van: { url: 'assets/sprites/van.png' } */
@@ -89,6 +90,10 @@ export const ART_STEPS = [
   { keys: ['guard_td'], gen: (s) => makeGuardTD(s) },
   { keys: ['perimeter_ground'], gen: (s) => makePerimeterGround(s) },
   { keys: ['rock_s', 'hidebush', 'fence_tile', 'searchtower', 'sensor', 'pickup'], gen: (s) => makePerimeterProps(s) },
+  // --- Chapter 4: the hangar
+  { keys: ['hangar_far', 'hangar_floor'], gen: (s) => { makeHangarFar(s); makeHangarFloor(s); } },
+  { keys: ['tarp_saucer'], gen: (s) => makeTarpSaucer(s) },
+  { keys: ['blastdoor', 'hackterm', 'palletrack', 'forklift'], gen: (s) => makeHangarProps(s) },
   // --- hub screens & cutscenes
   { keys: ['worldmap'], gen: (s) => { makeWorldMap(s); makeMapIcons(s); } },
   { keys: ['van_interior'], gen: (s) => makeVanInterior(s) },

@@ -15,6 +15,7 @@ import ControlsScene from './scenes/ControlsScene.js';
 import Chapter1Scene from './scenes/Chapter1Scene.js';
 import Chapter2Scene from './scenes/Chapter2Scene.js';
 import Chapter3Scene from './scenes/Chapter3Scene.js';
+import Chapter4Scene from './scenes/Chapter4Scene.js';
 import Chapter5Scene from './scenes/Chapter5Scene.js';
 import PauseScene from './scenes/PauseScene.js';
 import ResultsScene from './scenes/ResultsScene.js';
@@ -46,7 +47,7 @@ const game = new Phaser.Game({
   pipeline: { FilmFX },
   audio: { noAudio: true },          // we run our own Web Audio engine
   disableContextMenu: true,
-  scene: [BootScene, TitleScene, IntroScene, MapScene, VanShopScene, ResultsScene, Chapter1Scene, Chapter2Scene, Chapter3Scene, Chapter5Scene, CreditsScene, PauseScene, SettingsScene, ControlsScene],
+  scene: [BootScene, TitleScene, IntroScene, MapScene, VanShopScene, ResultsScene, Chapter1Scene, Chapter2Scene, Chapter3Scene, Chapter4Scene, Chapter5Scene, CreditsScene, PauseScene, SettingsScene, ControlsScene],
 });
 
 initRotateScreen(game);

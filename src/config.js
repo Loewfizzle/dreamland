@@ -138,6 +138,27 @@ export const CH3 = {
 };
 
 // ---------------------------------------------------------------------------
+// Chapter 4 — THE HANGAR (puzzles under a timer + light action)
+// ---------------------------------------------------------------------------
+export const CH4 = {
+  WALK_SPEED: 110,
+  SECTION_TIME: [90, 90, 100], // seconds before the agents arrive, per blast door
+  AGENT_EVERY_MS: 17000,       // a wandering agent walks in this often
+  AGENT_SPEED: 46,
+  AGENT_GRAB_PENALTY: 10,      // seconds lost when an agent grabs Ben
+  BARK_RANGE: 130,             // Zeus's bark stuns agents this close
+  BARK_STUN_MS: 2600,          // (BIG BARK upgrade adds more)
+  BARK_COOLDOWN_MS: 1800,
+  SNIFF_RADIUS: 170,
+  WIRES: 4,                    // wires in the connect-the-wires hack
+  SIMON_ROUNDS: [3, 4, 5],     // sequence lengths for the pattern hack
+  MINE_BLOCKS: 3,              // blocks to mine in the hash hack
+  MINE_ROLL_MS: 1500,          // how often the candidate hashes re-roll
+  HACK_MISTAKE_PENALTY: 4,     // seconds lost on a wrong move
+  PAR_TIME: 240,
+};
+
+// ---------------------------------------------------------------------------
 // Chapter 5 — UNDERGROUND (side-scrolling run & gun)
 // Level design rule of thumb (checked automatically by tools/reach-check.mjs):
 // with these numbers Ben clears 4 tiles up and ~5 tiles across.
