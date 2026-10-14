@@ -1,13 +1,14 @@
 {
   "name": "dreamland-heist",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DREAMLAND HEIST — a mobile-first, story-driven pixel-art browser game about Ben, Zeus, Area 51 and Satoshi.",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview --host"
+    "preview": "vite preview --host",
+    "check": "node tools/reach-check.mjs"
   },
   "dependencies": {
     "phaser": "3.90.0"

@@ -238,3 +238,28 @@ export function makeGlyphs(scene) {
   pc.outline(P.ink);
   addPixelTexture(scene, 'glyph_btc', pc);
 }
+
+/** Chunky 5-point rating star (17x16) for results screens. */
+export function makeRatingStar(scene) {
+  const rows = [
+    '........#........',
+    '.......###.......',
+    '.......###.......',
+    '......#####......',
+    '#################',
+    '.###############.',
+    '..#############..',
+    '...###########...',
+    '....#########....',
+    '....#########....',
+    '...#####.#####...',
+    '...####...####...',
+    '..###.......###..',
+    '..##.........##..',
+    '.#.............#.',
+  ];
+  const pc = new PixelCanvas(19, 17);
+  pc.map(rows, { '#': P.white }, 1, 1);
+  pc.outline(P.ink);
+  addPixelTexture(scene, 'rating_star', pc);
+}

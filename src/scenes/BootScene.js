@@ -73,7 +73,12 @@ export default class BootScene extends Phaser.Scene {
     this.time.delayedCall(250, () => {
       this.cameras.main.fadeOut(300, 11, 10, 26);
       this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('Title');
+        // dev shortcut: #Chapter5 or #Chapter5@120 (start column) jumps straight in
+        const m = /^#(\w+)(?:@(\d+))?/.exec(window.location.hash);
+        if (m && this.scene.manager.keys[m[1]]) {
+          this.registry.set('debugCol', m[2] ? parseInt(m[2], 10) : null);
+          this.scene.start(m[1]);
+        } else this.scene.start('Title');
         this.scene.bringToTop('Controls');
       });
     });

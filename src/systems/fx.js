@@ -31,7 +31,9 @@ void main() {
   // film grain (animated, per game-pixel)
   vec2 px = floor(uv * uRes);
   float n = hash(px + fract(uTime * 7.13) * 91.7) - 0.5;
-  c.rgb += n * uGrain;
+  // grain scales with brightness so dark scenes stay clean instead of noisy
+  float lum = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+  c.rgb += n * uGrain * (0.25 + lum);
   // scanlines every other game pixel row
   float s = mod(px.y, 2.0);
   c.rgb *= 1.0 - s * uScan;

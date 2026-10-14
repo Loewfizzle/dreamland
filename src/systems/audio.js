@@ -15,6 +15,7 @@ import { AUDIO } from '../config.js';
 import { Save } from './save.js';
 import { SongPlayer } from '../audio/sequencer.js';
 import { SFX, LOOPS } from '../audio/sfx.js';
+import '../audio/sfx_combat.js';
 import { AMBIENCES } from '../audio/ambience.js';
 import { SAMPLES } from '../audio/samples.js';
 
@@ -250,6 +251,12 @@ class AudioEngine {
     this.pendingSong = null;
     this.current?.stop(fade);
     this.current = null;
+  }
+
+  /** Duck the music (pause menus, dialogue). */
+  duck(on, time = 0.3) {
+    if (!this.ctx) return;
+    this.musicBus.gain.setTargetAtTime(AUDIO.MUSIC_BUS * (on ? 0.35 : 1), this.ctx.currentTime, time / 3);
   }
 
   /** Adaptive music helpers (no-ops if nothing is playing). */

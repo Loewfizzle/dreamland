@@ -62,6 +62,50 @@ export const ZEUS = {
 };
 
 // ---------------------------------------------------------------------------
+// Chapter 5 — UNDERGROUND (side-scrolling run & gun)
+// Level design rule of thumb (checked automatically by tools/reach-check.mjs):
+// with these numbers Ben clears 4 tiles up and ~5 tiles across.
+// ---------------------------------------------------------------------------
+export const CH5 = {
+  TILE: 16,
+  RUN_SPEED: 128,          // px/sec
+  ACCEL: 1400,             // ground acceleration (snappy but not twitchy)
+  AIR_ACCEL: 900,
+  JUMP_VELOCITY: 345,
+  GRAVITY: 900,
+  COYOTE_MS: 100,
+  JUMP_BUFFER_MS: 120,     // press jump slightly before landing and it still counts
+  MAX_HEALTH: 5,           // hearts (van shop upgrade adds more later)
+  INVULN_MS: 1100,         // flashing invincibility after a hit
+  KNOCKBACK: 170,
+
+  BLASTER_COOLDOWN_MS: 170,
+  BLASTER_SPEED: 420,
+  BLASTER_DAMAGE: 1,
+
+  TACKLE_RANGE: 150,       // Zeus finds a target within this distance
+  TACKLE_SPEED: 330,
+  TACKLE_DAMAGE: 3,
+  TACKLE_STUN_MS: 1600,
+  TACKLE_COOLDOWN_MS: 2600,
+  SNIFF_RADIUS: 150,
+  ZEUS_RUN: 150,
+  ZEUS_JUMP: 360,
+
+  ENEMY_BULLET_SPEED: 150, // slow enough to dodge — this is a B-movie, not a bullet hell
+  SOLDIER_HP: 3, SOLDIER_SPEED: 40, SOLDIER_SIGHT: 210, SOLDIER_FIRE_MS: 1500,
+  AGENT_HP: 4, AGENT_SPEED: 60, AGENT_SIGHT: 240, AGENT_FIRE_MS: 1100,
+  DRONE_HP: 2, DRONE_SPEED: 55, DRONE_SIGHT: 200, DRONE_FIRE_MS: 1700,
+  GREY_HP: 3, GREY_SIGHT: 230, GREY_FIRE_MS: 2100, GREY_TELEPORT_MS: 3200,
+
+  SATS_PER_KILL: 15,
+  HOTDOG_HEAL: 2,
+  LASER_ON_MS: 1400, LASER_OFF_MS: 1400,
+  ELEVATOR_SPEED: 40,
+  AMBIENT_LIGHT: 0x40385e, // how dark the labs are (lower = darker)
+};
+
+// ---------------------------------------------------------------------------
 // Title screen ambience
 // ---------------------------------------------------------------------------
 export const TITLE = {

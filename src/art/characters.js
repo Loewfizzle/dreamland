@@ -152,6 +152,10 @@ function benPoses() {
     { bob: 0, feet: [[9, 31], [15, 31]], hands: [[11, 19], [17, 15]], gun: true },
     { bob: 0, lean: -1, feet: [[9, 31], [15, 31]], hands: [[11, 19], [16, 15]], gun: true },
   ];
+  // run & gun: legs keep striding, near arm holds the blaster level
+  poses.runshoot = poses.run.map((p) => ({ ...p, hands: [p.hands[0], [17, 15 + (p.bob ?? 0)]], gun: true }));
+  poses.jumpshoot = [{ bob: -1, feet: [[9, 28], [15, 27]], hands: [[8, 12], [17, 14]], gun: true, mouth: 'open' }];
+  poses.fallshoot = [{ bob: 0, feet: [[10, 31], [15, 30]], hands: [[7, 15], [17, 15]], gun: true }];
   poses.point = [{ bob: 0, feet: [[10, 31], [14, 31]], hands: [[10, 20], [19, 8]], mouth: 'open' }];
   poses.talk = [
     { bob: 0, feet: [[10, 31], [14, 31]], hands: [[10, 20], [16, 16]], mouth: 'open' },
@@ -335,10 +339,10 @@ function zeusPoses() {
 //  Sheet + animation registration
 // ---------------------------------------------------------------------------
 const ANIM_SPEC = {
-  ben: { idle: 4, run: 14, jump: 1, fall: 1, hurt: 1, shoot: 12, point: 1, talk: 6 },
+  ben: { idle: 4, run: 14, jump: 1, fall: 1, hurt: 1, shoot: 12, runshoot: 14, jumpshoot: 1, fallshoot: 1, point: 1, talk: 6 },
   zeus: { trot: 14, stand: 7, sit: 6, sniff: 8, bark: 10, dizzy: 5, lie: 2, leap: 1 },
 };
-const LOOPING = new Set(['idle', 'run', 'trot', 'stand', 'sit', 'sniff', 'dizzy', 'lie', 'talk']);
+const LOOPING = new Set(['idle', 'run', 'runshoot', 'trot', 'stand', 'sit', 'sniff', 'dizzy', 'lie', 'talk']);
 
 function registerSheet(scene, key, w, h, poses, draw, opts, outline) {
   const order = Object.keys(poses);

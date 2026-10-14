@@ -9,28 +9,28 @@
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 
-function noise(e, t, dur, { loop = false } = {}) {
+export function noise(e, t, dur, { loop = false } = {}) {
   const s = e.ctx.createBufferSource();
   s.buffer = e.noise;
   if (loop) { s.loop = true; s.start(t); return s; }
   s.start(t, rnd(0, e.noise.duration - dur - 0.05), dur + 0.05);
   return s;
 }
-function filter(ctx, type, freq, q = 1) {
+export function filter(ctx, type, freq, q = 1) {
   const f = ctx.createBiquadFilter();
   f.type = type;
   f.frequency.value = freq;
   f.Q.value = q;
   return f;
 }
-function gainEnv(ctx, t, peak, attack, decay) {
+export function gainEnv(ctx, t, peak, attack, decay) {
   const g = ctx.createGain();
   g.gain.setValueAtTime(0.0001, t);
   g.gain.linearRampToValueAtTime(peak, t + attack);
   g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
   return g;
 }
-function tone(ctx, type, f, t, stop) {
+export function tone(ctx, type, f, t, stop) {
   const o = ctx.createOscillator();
   o.type = type;
   o.frequency.setValueAtTime(f, t);
@@ -326,7 +326,7 @@ export const SFX = {
 // ---------------------------------------------------------------------------
 //  LOOPS
 // ---------------------------------------------------------------------------
-function loopHandle(e, out, nodes, setters = {}) {
+export function loopHandle(e, out, nodes, setters = {}) {
   return {
     set(params) {
       for (const [k, v] of Object.entries(params)) setters[k]?.(v, e.ctx.currentTime);
@@ -346,7 +346,7 @@ function loopHandle(e, out, nodes, setters = {}) {
 
 /** Pre-render a looping buffer with a generator fn(dataL, dataR, sampleRate). */
 const bufCache = new Map();
-function renderLoop(e, key, seconds, gen) {
+export function renderLoop(e, key, seconds, gen) {
   if (bufCache.has(key)) return bufCache.get(key);
   const sr = e.ctx.sampleRate;
   const buf = e.ctx.createBuffer(2, Math.floor(sr * seconds), sr);
@@ -354,7 +354,7 @@ function renderLoop(e, key, seconds, gen) {
   bufCache.set(key, buf);
   return buf;
 }
-function playBuffer(e, buf, dest) {
+export function playBuffer(e, buf, dest) {
   const s = e.ctx.createBufferSource();
   s.buffer = buf;
   s.loop = true;

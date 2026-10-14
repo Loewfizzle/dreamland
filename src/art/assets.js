@@ -9,7 +9,10 @@ import { P, SKIES } from './palette.js';
 import { generateCharacters } from './characters.js';
 import { makeSky, makeSun, makeGlow, makeBeam, makeStars, makeCloud, makeRange, makeMesas, makeNearLayer, makeDesertFloor, makeJoshuaSprite, makeCactus, makeTumbleweed, makeLedge } from './environment.js';
 import { makeVan, makeUFO, makeCampfire, makeCoins } from './props.js';
-import { makeLogo, makeSign, makePost, makePanel, makeIcons, makeTouchArt, makeGlyphs } from './ui.js';
+import { generateEnemies } from './enemies.js';
+import { makePortraits } from './portraits.js';
+import { makeLabTiles, makeLabFar, makeLabMid, makeLabProps, makeCombatFX } from './lab.js';
+import { makeLogo, makeSign, makePost, makePanel, makeIcons, makeTouchArt, makeGlyphs, makeRatingStar } from './ui.js';
 
 /** key -> { url, frameWidth?, frameHeight? }   e.g.  van: { url: 'assets/sprites/van.png' } */
 export const FILE_OVERRIDES = {
@@ -58,5 +61,13 @@ export const ART_STEPS = [
     makePanel(s, 'panel', 300, 230);
     makePanel(s, 'panel_wide', 400, 120, { accent: P.btc });
   } },
-  { keys: ['icons'], gen: (s) => { makeIcons(s); makeGlyphs(s); makeTouchArt(s); } },
+  { keys: ['icons'], gen: (s) => { makeIcons(s); makeGlyphs(s); makeTouchArt(s); makeRatingStar(s); } },
+  // --- Chapter 5: underground labs
+  { keys: ['soldier', 'agent', 'grey', 'drone'], gen: (s) => generateEnemies(s) },
+  { keys: ['portrait_ben', 'portrait_zeus'], gen: (s) => makePortraits(s) },
+  { keys: ['labtiles'], gen: (s) => makeLabTiles(s) },
+  { keys: ['lab_far', 'lab_far_glow'], gen: (s) => makeLabFar(s) },
+  { keys: ['lab_mid', 'lab_mid_glow'], gen: (s) => makeLabMid(s) },
+  { keys: ['tank', 'rack', 'terminal', 'rig'], gen: (s) => makeLabProps(s) },
+  { keys: ['bolt', 'boom'], gen: (s) => makeCombatFX(s) },
 ];

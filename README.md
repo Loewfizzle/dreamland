@@ -9,7 +9,8 @@ Built with **Phaser 3 + Vite + plain JavaScript**. Every sprite is hand-crafted 
 | Milestone | Status |
 |---|---|
 | 1. Engine, controls, save, audio engine, title screen | ✅ done |
-| 2. Dialogue/cutscenes, intro, chapter map, van shop, results | ⏳ next |
+| ★ Vertical slice: Chapter 5 "Underground" (full quality bar) | ✅ playable |
+| 2. Dialogue/cutscenes, intro, chapter map, van shop, results | ⏳ next (dialogue system already built) |
 | 3. Chapters 1–6 | — |
 | 4. Ending, credits, post-credits stinger | — |
 | 5. Polish pass | — |
@@ -39,14 +40,20 @@ npm run build     # outputs static files to dist/
 npm run preview   # serve the build locally
 ```
 
+## Level design check
+
+`npm run check` simulates Ben's real jump physics over the Chapter 5 layout and fails if any coin, golden bitcoin, hot dog or platform can't be reached.
+
+Dev shortcut: add `#Chapter5` (or `#Chapter5@120` to start at tile column 120) to the URL to jump straight into the chapter.
+
 ## Controls
 
 | Action | Keyboard | Touch |
 |---|---|---|
 | Move | WASD / Arrow keys | Left-thumb joystick (floats to wherever you touch) |
 | Action / Jump (A) | Space / J / Z | Orange button |
-| Zeus ability (B) | E / K / X | Cyan paw button |
-| Secondary (C) | Shift / L / C | Pink button |
+| Zeus ability (B): TACKLE nearby enemy, else SNIFF | E / K / X | Cyan paw button |
+| Fire blaster (C) | Shift / L / C | Pink button (hold) |
 | Pause | Esc / P | Pause icon (top right) |
 
 ## Tweaking the game

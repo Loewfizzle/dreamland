@@ -27,4 +27,14 @@ export const AMBIENCES = {
     ],
     events: [{ sfx: 'coyote', every: [14, 30], vol: 0.5, pan: [-0.9, 0.9] }],
   },
+  // Underground labs: mains hum, drips, buzzing tubes, distant machinery.
+  lab: {
+    loops: [{ name: 'hum', vol: 0.5 }],
+    events: [
+      { sfx: 'drip', every: [1.5, 5], vol: 0.6, pan: [-0.9, 0.9] },
+      { sfx: 'buzz', every: [4, 11], vol: 0.5, pan: [-0.7, 0.7] },
+      { sfx: 'clank', every: [7, 16], vol: 0.35, pan: [-1, 1] },
+      { sfx: 'steam', every: [12, 25], vol: 0.4, pan: [-0.8, 0.8] },
+    ],
+  },
 };
