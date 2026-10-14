@@ -332,7 +332,7 @@ export default class Chapter6Scene extends Phaser.Scene {
     this.bolts.spawn(s.x + 30, s.y + 2, CH6.BOLT_SPEED, 0, 6);
     this.bolts.spawn(s.x + 28, s.y - 2, CH6.BOLT_SPEED, -40, 6);
     this.bolts.spawn(s.x + 28, s.y + 6, CH6.BOLT_SPEED, 40, 6);
-    Audio.sfx('blaster', { volume: 0.35, minGap: 60 });
+    Audio.sfx('blaster', { volume: 0.35, minGap: 120 });
   }
 
   // ---------------------------------------------------------------------------
@@ -524,7 +524,7 @@ export default class Chapter6Scene extends Phaser.Scene {
     this.bark = Math.min(1, this.bark + CH6.POWER_BARK_CHARGE * (core ? 1.5 : 1) * 0.3);
     this.sparks.setParticleTint(core ? 0xffffff : 0xffc35c);
     this.sparks.explode(core ? 6 : 3, x, y);
-    Audio.sfx('hit', { volume: core ? 0.6 : 0.35, minGap: 50 });
+    Audio.sfx('hit', { volume: core ? 0.6 : 0.35, minGap: 140 });
     if (!this.flashing) {
       this.flashing = true;
       this.boss.setFrame(1);
@@ -579,7 +579,7 @@ export default class Chapter6Scene extends Phaser.Scene {
     const e = this.add.sprite(x, y, 'boom').play('boom').setDepth(75).setScale(big ? 2.2 : 1);
     e.once('animationcomplete', () => e.destroy());
     this.lighting.flash(x, y, big ? 240 : 110, 0xffa040, 450, 1);
-    Audio.sfx('explosion', { big, volume: big ? 1 : 0.6, minGap: 40 });
+    Audio.sfx('explosion', { big, volume: big ? 1 : 0.6, minGap: 120 });
     shake(this, big ? 400 : 120, big ? 0.02 : 0.006);
   }
 

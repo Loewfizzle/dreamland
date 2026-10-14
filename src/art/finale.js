@@ -50,7 +50,8 @@ export function makeNightSky(scene) {
 //  Hover-sled with Ben & Zeus (64 x 40), 2 frames (thruster flicker)
 // ---------------------------------------------------------------------------
 export function makeSled(scene) {
-  buildSheet(scene, 'sled', 64, 40, [0, 1].map((f) => (pc) => {
+  // two sheets: 'sled' with Ben & Zeus riding, 'sled_empty' once they've climbed off
+  for (const riders of [true, false]) buildSheet(scene, riders ? 'sled' : 'sled_empty', 64, 40, [0, 1].map((f) => (pc) => {
     // hull: sleek alien tech, silver with cyan trim
     pc.poly([[6, 26], [52, 26], [62, 22], [58, 30], [10, 32]], '#b5c0cc');
     pc.hline(8, 56, 26, '#f0f4f8'); pc.hline(10, 54, 31, '#6b7686');
@@ -59,6 +60,7 @@ export function makeSled(scene) {
     pc.px(1, 26, f ? '#d6fffb' : '#7ff8ff'); pc.px(1, 27, f ? '#7ff8ff' : '#3cf2ff');
     pc.rect(50, 18, 3, 8, '#8a94a4');                                  // windshield post
     pc.poly([[50, 18], [57, 16], [55, 22]], '#7ff8ff80');
+    if (!riders) return;
     // Ben (seated, gripping the handlebar, cap)
     pc.rect(30, 14, 9, 11, P.hood1); pc.vline(30, 14, 24, P.hood2);
     pc.map(['##.', '#.#', '##.'], { '#': P.btc }, 34, 17);

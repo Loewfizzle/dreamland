@@ -21,18 +21,26 @@ import { SAMPLES } from '../audio/samples.js';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-// Frequently repeated sounds are rendered ONCE into small buffers (a few random
-// variants each) and then played back cheaply. Building them from dozens of
-// oscillator/filter nodes every footstep is what overloads phone audio.
-// name -> number of variants. Keys may depend on opts (see bakeKey).
-const BAKE = {
-  step_sand: 4, step_metal: 4, jingle: 4, blip: 1, ui_hover: 1, ui_click: 1, ui_toggle: 1,
-  coin: 1, land: 2, jump: 2, hit: 3, blaster: 3, enemy_shot: 3, sniff: 1, fire_pop: 3,
-  drip: 3, buzz: 2, bark: 4, boof: 1, pant: 1, ricochet: 2, grunt: 3, thud: 2,
+// EVERY synthesized sound effect is rendered ONCE (offline) into a small buffer
+// — a few random variants each — and then played back as a cheap recording.
+// Building sounds from dozens of oscillators/filters on every play is what
+// overloads phone audio threads in busy scenes (sound crackles, then dies).
+// name -> number of variants (default 2). Keys also depend on opts (bakeKey).
+const VARIANTS = {
+  step_sand: 4, step_metal: 4, jingle: 4, bark: 4, blip: 1, ui_hover: 1, ui_click: 1, ui_toggle: 1,
+  coin: 1, golden: 1, hit: 3, blaster: 3, enemy_shot: 3, explosion: 3, grunt: 3, drip: 3, fire_pop: 3,
 };
-// Low-priority sounds get dropped first when too many voices are playing.
-const LOW_PRIORITY = new Set(['step_sand', 'step_metal', 'jingle', 'blip', 'drip', 'fire_pop', 'buzz', 'ui_hover']);
-const MAX_VOICES = 24;
+// Never bake (none currently) — kept as an escape hatch.
+const LIVE_ONLY = new Set([]);
+// Low-priority sounds get dropped first when the mix gets busy.
+const LOW_PRIORITY = new Set(['step_sand', 'step_metal', 'jingle', 'blip', 'drip', 'fire_pop', 'buzz', 'ui_hover', 'ricochet', 'sparkle', 'clank', 'steam']);
+// Sounds that must always play.
+const PRIORITY = new Set(['oof', 'golden', 'spotted', 'caught', 'checkpoint', 'ui_click', 'ui_confirm', 'ui_back', 'reveal', 'denied', 'cash']);
+// Max copies of one sound playing at the same time.
+const PER_NAME_MAX = { explosion: 3, hit: 3, blaster: 2, enemy_shot: 3, alien_zap: 2, coin: 4, grunt: 2, thud: 2, sparkle: 2, whoosh: 2, teleport: 2 };
+const SOFT_VOICES = 14;    // above this, low-priority sounds are dropped
+const HARD_VOICES = 22;    // above this, everything but PRIORITY is dropped
+const OPT_IGNORE = new Set(['volume', 'pan', 'delay', 'minGap', 'reverb']);
 
 class AudioEngine {
   constructor() {
@@ -69,6 +77,7 @@ class AudioEngine {
         if (this.pendingSong) { const p = this.pendingSong; this.pendingSong = null; this.playMusic(p.song, p.opts); }
         if (this.pendingAmbience) { const a = this.pendingAmbience; this.pendingAmbience = null; this.playAmbience(a); }
         this.unlockCallbacks.splice(0).forEach((fn) => fn());
+        setTimeout(() => this.prewarm(), 500);
       };
       if (this.ctx.state === 'running') done();
       else this.ctx.resume().then(done).catch(() => { /* try again next gesture */ });
@@ -83,6 +92,7 @@ class AudioEngine {
     };
     ['pointerdown', 'touchend', 'keydown'].forEach((ev) => window.addEventListener(ev, revive, true));
     setInterval(revive, 2000);
+    setInterval(() => this.watchdog(), 1000);
 
     // Pause audio when the tab/app goes to the background.
     document.addEventListener('visibilitychange', () => {
@@ -114,19 +124,8 @@ class AudioEngine {
     // --- master chain: glue compressor -> brickwall-ish limiter
     this.master = ctx.createGain();
     this.master.gain.value = AUDIO.MASTER;
-    const glue = ctx.createDynamicsCompressor();
-    glue.threshold.value = -18;
-    glue.knee.value = 12;
-    glue.ratio.value = 3;
-    glue.attack.value = 0.012;
-    glue.release.value = 0.25;
-    const limiter = ctx.createDynamicsCompressor();
-    limiter.threshold.value = -2.5;
-    limiter.knee.value = 0;
-    limiter.ratio.value = 20;
-    limiter.attack.value = 0.002;
-    limiter.release.value = 0.08;
-    this.master.connect(glue).connect(limiter).connect(ctx.destination);
+    this.buildMasterChain();
+    this.activeByName = {};
 
     // --- volume groups
     this.musicVol = ctx.createGain();
@@ -187,6 +186,8 @@ class AudioEngine {
     const roomRet = ctx.createGain();
     roomRet.gain.value = 0.5;
     this.roomIn.connect(room).connect(roomRet).connect(this.sfxBus);
+    // shared send levels: each sound connects to the closest one (no per-sound send node)
+    this.roomSends = [0.15, 0.4, 0.7].map((lv) => { const g = ctx.createGain(); g.gain.value = lv; g.connect(this.roomIn); return { lv, g }; });
 
     this.applyVolumes();
     Save.onSettingChange((k) => { if (k === 'music' || k === 'sfx') this.applyVolumes(); });
@@ -196,6 +197,47 @@ class AudioEngine {
 
     // Load any recorded sample overrides.
     for (const [key, url] of Object.entries(SAMPLES)) this.loadSample(key, url);
+  }
+
+  /**
+   * (Re)build compressor -> limiter -> speakers. Called at start, and by the
+   * watchdog if the output ever gets poisoned (a single NaN sample makes a
+   * DynamicsCompressor output silence forever).
+   */
+  buildMasterChain() {
+    const ctx = this.ctx;
+    if (this.chain) { try { this.master.disconnect(); this.chain.forEach((n) => n.disconnect()); } catch (_) { /* noop */ } }
+    const glue = ctx.createDynamicsCompressor();
+    glue.threshold.value = -18;
+    glue.knee.value = 12;
+    glue.ratio.value = 3;
+    glue.attack.value = 0.012;
+    glue.release.value = 0.25;
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -2.5;
+    limiter.knee.value = 0;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.002;
+    limiter.release.value = 0.08;
+    const probe = ctx.createAnalyser();
+    probe.fftSize = 256;
+    this.master.connect(glue).connect(limiter).connect(ctx.destination);
+    limiter.connect(probe);
+    this.chain = [glue, limiter, probe];
+    this.probe = probe;
+    this.probeBuf = new Float32Array(probe.fftSize);
+  }
+
+  /** Runs every second: resume a paused context, heal a poisoned output. */
+  watchdog() {
+    if (!this.ctx || !this.unlocked || document.hidden) return;
+    if (this.ctx.state !== 'running') { this.ctx.resume().catch(() => {}); return; }
+    this.probe.getFloatTimeDomainData(this.probeBuf);
+    for (let i = 0; i < this.probeBuf.length; i += 8) {
+      if (!Number.isFinite(this.probeBuf[i])) { console.warn('[audio] output poisoned - rebuilding master chain'); this.buildMasterChain(); return; }
+    }
+    // voice bookkeeping can never drift upward forever
+    if (this.voices > HARD_VOICES * 2) this.voices = 0;
   }
 
   /** Generated stereo impulse response: darkening exponential noise tail. */
@@ -299,30 +341,37 @@ class AudioEngine {
     const nowMs = performance.now();
     const gap = opts.minGap ?? 30;
     if (this.lastPlayed[name] && nowMs - this.lastPlayed[name] < gap) return;
-    if (this.voices >= MAX_VOICES && LOW_PRIORITY.has(name)) return;   // phone-friendly voice cap
+    // phone-friendly voice limits
+    if (!PRIORITY.has(name)) {
+      if (this.voices >= HARD_VOICES) return;
+      if (this.voices >= SOFT_VOICES && LOW_PRIORITY.has(name)) return;
+      if ((this.activeByName[name] ?? 0) >= (PER_NAME_MAX[name] ?? 6)) return;
+    }
     this.lastPlayed[name] = nowMs;
     this.voices = (this.voices ?? 0) + 1;
+    this.activeByName[name] = (this.activeByName[name] ?? 0) + 1;
+    const vol = Number.isFinite(opts.volume) ? Math.max(0, Math.min(2, opts.volume)) : 1;
+    const panV = Number.isFinite(opts.pan) ? clamp(opts.pan, -1, 1) : 0;
 
     const t = ctx.currentTime + (opts.delay ?? 0);
     const out = ctx.createGain();
-    out.gain.value = opts.volume ?? 1;
+    out.gain.value = vol;
     let tail = out;
-    if (opts.pan) {
+    if (panV) {
       const p = ctx.createStereoPanner();
-      p.pan.value = clamp(opts.pan, -1, 1);
+      p.pan.value = panV;
       out.connect(p);
       tail = p;
     }
     tail.connect(this.sfxBus);
     const rv = opts.reverb ?? 0.15;
-    if (rv > 0) {
-      const s = ctx.createGain();
-      s.gain.value = rv;
-      tail.connect(s).connect(this.roomIn);
+    if (rv > 0.05) {
+      const send = this.roomSends.reduce((a, b) => (Math.abs(b.lv - rv) < Math.abs(a.lv - rv) ? b : a));
+      tail.connect(send.g);
     }
 
     let dur = 1;
-    const baked = !this.samples[name] && BAKE[name] ? this.getBaked(name, opts) : null;
+    const baked = !this.samples[name] && SFX[name] && !LIVE_ONLY.has(name) ? this.getBaked(name, opts) : null;
     if (baked) {
       const src = ctx.createBufferSource();
       src.buffer = baked;
@@ -344,6 +393,7 @@ class AudioEngine {
     }
     setTimeout(() => {
       this.voices = Math.max(0, this.voices - 1);
+      this.activeByName[name] = Math.max(0, (this.activeByName[name] ?? 1) - 1);
       try { out.disconnect(); tail.disconnect(); } catch (_) { /* noop */ }
     }, (dur + 0.3 + (opts.delay ?? 0)) * 1000);
   }
@@ -351,12 +401,15 @@ class AudioEngine {
   // ---------------------------------------------------------------------------
   // Baked SFX cache
   // ---------------------------------------------------------------------------
+  /** Cache key: the sound name plus any options that change how it sounds. */
   bakeKey(name, opts) {
-    if (name === 'coin') return `coin:${opts.combo ?? 0}`;
-    if (name === 'blip') return `blip:${Math.round(opts.pitch ?? 260)}:${opts.wave ?? 'square'}`;
-    if (name === 'bark') return `bark:${(opts.pitch ?? 1).toFixed(2)}`;
-    if (name === 'grunt') return `grunt:${(opts.pitch ?? 1).toFixed(2)}`;
-    return name;
+    let k = name;
+    for (const o of Object.keys(opts).sort()) {
+      if (OPT_IGNORE.has(o)) continue;
+      const v = opts[o];
+      k += `|${o}=${typeof v === 'number' ? Math.round(v * 100) / 100 : v}`;
+    }
+    return k;
   }
 
   /** Returns a ready buffer (random variant) or null while it's still rendering. */
@@ -367,8 +420,8 @@ class AudioEngine {
     if (entry) return entry.ready ? entry.bufs[Math.floor(Math.random() * entry.bufs.length)] : null;
     const e = { ready: false, bufs: [] };
     this.baked.set(key, e);
-    this.renderVariants(name, opts, BAKE[name]).then((bufs) => { e.bufs = bufs; e.ready = bufs.length > 0; })
-      .catch((err) => { console.warn('[audio] bake failed', name, err); this.baked.delete(key); BAKE[name] = 0; });
+    this.renderVariants(name, opts, VARIANTS[name] ?? 2).then((bufs) => { e.bufs = bufs; e.ready = bufs.length > 0; })
+      .catch((err) => { console.warn('[audio] bake failed', name, err); LIVE_ONLY.add(name); });
     return null;   // first call plays live; later calls use the baked buffer
   }
 
@@ -378,12 +431,12 @@ class AudioEngine {
     const sr = this.ctx.sampleRate;
     const bufs = [];
     for (let i = 0; i < n; i++) {
-      const off = new OAC(1, Math.ceil(sr * 1.6), sr);
+      const off = new OAC(1, Math.ceil(sr * 3), sr);
       const fake = { ctx: off, noise: this.noise };
       const g = off.createGain();
       g.connect(off.destination);
       // volume/pan are applied at playback time, so bake at unity
-      const dur = Math.min(1.5, (SFX[name](fake, g, 0, { ...opts, delay: 0, volume: undefined, pan: undefined }) ?? 1) + 0.05);
+      const dur = Math.min(2.9, (SFX[name](fake, g, 0, { ...opts, delay: 0, volume: undefined, pan: undefined }) ?? 1) + 0.05);
       const rendered = await off.startRendering();
       // trim to the sound's real length to keep memory small
       const len = Math.ceil(sr * dur);
@@ -392,6 +445,21 @@ class AudioEngine {
       bufs.push(buf);
     }
     return bufs;
+  }
+
+  /** Pre-render the most common sounds during idle time so even the first play is cheap. */
+  prewarm() {
+    const list = ['ui_hover', 'ui_click', 'ui_confirm', 'ui_back', 'ui_toggle', 'coin', 'jump', 'land', 'step_sand', 'step_metal', 'jingle',
+      'bark', 'bark2', 'boof', 'sniff', 'pant', 'whine', 'blaster', 'hit', 'enemy_shot', 'explosion', 'grunt', 'thud', 'oof',
+      'alien_zap', 'teleport', 'whoosh', 'sparkle', 'golden', 'ricochet', 'laser_zap', 'sensor_ping', 'suspicious', 'spotted', 'snip', 'rustle'];
+    let i = 0;
+    const next = () => {
+      if (i >= list.length) return;
+      const n = list[i++];
+      if (SFX[n]) this.getBaked(n, {});
+      setTimeout(next, 60);
+    };
+    next();
   }
 
   /** Start a looping sound. Returns a handle { set({volume,pan,...}), stop(fade) } or a dummy. */

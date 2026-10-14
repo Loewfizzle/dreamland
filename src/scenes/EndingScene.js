@@ -29,7 +29,7 @@ export default class EndingScene extends Phaser.Scene {
     Audio.playAmbience('desert_day');
     applyFilm(this, { vignette: 1.05 });
     this.skipped = false;
-    const skip = headText(this, W - 14, H - 12, 'SKIP >>', 8, P.cream, { ox: 1 }).setDepth(3000).setAlpha(0.7);
+    const skip = headText(this, W - 14, H - 12, 'SKIP ENDING >>', 8, P.cream, { ox: 1 }).setDepth(3000).setAlpha(0.7);
     skip.setInteractive({ useHandCursor: true }).on('pointerup', () => this.finish());
     this.build();
     this.run();
@@ -80,6 +80,7 @@ export default class EndingScene extends Phaser.Scene {
     this.ben = this.add.sprite(214, GROUND, 'ben').setOrigin(0.5, 1).play('ben_idle').setDepth(10).setAlpha(0);
     this.zeus = this.add.sprite(186, GROUND, 'zeus').setOrigin(0.5, 1).play('zeus_sit').setDepth(10).setAlpha(0);
     this.sat = this.add.sprite(372, GROUND, 'satoshi').setOrigin(0.5, 1).play('satoshi_idle').setDepth(10).setAlpha(0).setFlipX(true);
+    this.sled.setTexture('sled_empty', 0);          // they've climbed off: the sled is empty now
     this.tweens.add({ targets: [this.ben, this.zeus], alpha: 1, x: '+=40', duration: 700 });
     this.ben.play('ben_run'); this.zeus.play('zeus_trot');
     await this.wait(900);

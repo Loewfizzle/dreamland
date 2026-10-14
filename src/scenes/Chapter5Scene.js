@@ -363,7 +363,7 @@ export default class Chapter5Scene extends Phaser.Scene {
       if (!b.active || e.dead || !e.hit) return;
       e.hit(stat('blasterDamage', CH5.BLASTER_DAMAGE), b.x - b.body.velocity.x);
       this.sparkBurst(b.x, b.y, P.cyan1, 8);
-      Audio.sfx('hit', { volume: 0.7, pan: Audio.panFor(b.x, this.cameras.main), minGap: 40 });
+      Audio.sfx('hit', { volume: 0.7, pan: Audio.panFor(b.x, this.cameras.main), minGap: 90 });
       this.killBolt(b, false);
     });
     this.physics.add.overlap(this.bolts, this.orbs, (a1, a2) => {

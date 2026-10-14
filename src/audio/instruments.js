@@ -93,9 +93,15 @@ function pad(e, layer, t, freqs, dur, vel) {
   for (const f of freqs) {
     for (const side of [-1, 1]) {
       const o = osc(ctx, p.wave ?? 'sawtooth', f, t, det * side);
-      const pan = ctx.createStereoPanner();
-      pan.pan.value = side * (p.width ?? 0.6);
-      o.connect(pan).connect(filt);
+      layer.padPans = layer.padPans ?? {};
+      const key = `${side}`;
+      if (!layer.padPans[key] || layer.padPans[key].filt !== filt) {
+        const pan = ctx.createStereoPanner();
+        pan.pan.value = side * (p.width ?? 0.6);
+        pan.connect(filt);
+        layer.padPans[key] = { pan, filt };
+      }
+      o.connect(layer.padPans[key].pan);
       o.start(t);
       o.stop(end);
     }
@@ -117,16 +123,19 @@ function pluck(e, layer, t, freqs, dur, vel) {
     src.buffer = buf;
     src.playbackRate.setValueAtTime(rate * (p.slide ? 0.94 : 1), t);
     if (p.slide) src.playbackRate.linearRampToValueAtTime(rate, t + 0.06);
-    const tone = ctx.createBiquadFilter();
-    tone.type = 'peaking';
-    tone.frequency.value = p.twangFreq ?? 1800;
-    tone.gain.value = p.twang ?? 6;
-    tone.Q.value = 1.2;
+    if (!layer.twang) {
+      layer.twang = ctx.createBiquadFilter();
+      layer.twang.type = 'peaking';
+      layer.twang.frequency.value = p.twangFreq ?? 1800;
+      layer.twang.gain.value = p.twang ?? 6;
+      layer.twang.Q.value = 1.2;
+      layer.twang.connect(layer.input);
+    }
     const g = ctx.createGain();
     const hold = Math.max(dur, 0.15) + (p.ring ?? 0.6);
     g.gain.setValueAtTime(0.9 * vel, t);
     g.gain.setTargetAtTime(0.0001, t + hold, 0.12);
-    src.connect(tone).connect(g).connect(layer.input);
+    src.connect(g).connect(layer.twang);
     src.start(t);
     src.stop(t + hold + 0.6);
   }
@@ -162,13 +171,15 @@ function arp(e, layer, t, freqs, dur, vel) {
     const o = ctx.createOscillator();
     if (p.wave) o.type = p.wave; else o.setPeriodicWave(pulseWave(ctx));
     o.frequency.setValueAtTime(f, t);
-    const filt = ctx.createBiquadFilter();
-    filt.type = 'lowpass';
-    filt.frequency.setValueAtTime(p.cutoff ?? 3200, t);
-    filt.frequency.setTargetAtTime((p.cutoff ?? 3200) * 0.4, t, 0.05);
+    if (!layer.arpFilter) {
+      layer.arpFilter = ctx.createBiquadFilter();
+      layer.arpFilter.type = 'lowpass';
+      layer.arpFilter.frequency.value = (p.cutoff ?? 3200) * 0.7;
+      layer.arpFilter.connect(layer.input);
+    }
     const g = ctx.createGain();
     const end = adsr(g.gain, t, Math.min(dur, p.gate ?? 0.09), 0.22 * vel, 0.003, 0.06, 0.4, 0.08);
-    o.connect(filt).connect(g).connect(layer.input);
+    o.connect(g).connect(layer.arpFilter);
     o.start(t);
     o.stop(end);
   }
