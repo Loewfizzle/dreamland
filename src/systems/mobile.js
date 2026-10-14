@@ -21,7 +21,7 @@ export function installMobileGuards() {
 }
 
 /** Front-facing Zeus head (32x32) for the rotate screen. */
-function drawZeusFace(pc, blink) {
+export function drawZeusFace(pc, blink) {
   const g = { a: P.gold0, b: P.gold1, c: P.gold2, d: P.gold3, e: P.gold4 };
   // ears
   pc.ellipse(6, 15, 4, 8, g.d); pc.ellipse(25, 15, 4, 8, g.d);
@@ -78,3 +78,36 @@ export function initRotateScreen(game) {
   window.addEventListener('resize', apply);
   apply();
 }
+
+// ---------------------------------------------------------------------------
+//  Fullscreen
+//  Android/desktop browsers allow the Fullscreen API (only from a tap).
+//  iPhone Safari does NOT — the only true fullscreen there is launching the
+//  game from the Home Screen ("Add to Home Screen"), which the manifest +
+//  apple-mobile-web-app meta tags in index.html enable.
+// ---------------------------------------------------------------------------
+export const isIOS = /iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPadOS reports as Mac
+export const isStandalone = window.matchMedia?.('(display-mode: standalone)').matches ||
+  window.matchMedia?.('(display-mode: fullscreen)').matches || navigator.standalone === true;
+export const isTouch = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+
+/** Enter fullscreen + lock landscape. Must be called from a tap/click handler. */
+export function goFullscreen(scene) {
+  const s = scene.scale;
+  if (!s.fullscreen.available || s.isFullscreen || isStandalone) return false;
+  s.startFullscreen();
+  return true;
+}
+
+/** Lock to landscape whenever we enter fullscreen (Android supports this). */
+export function installOrientationLock(game) {
+  game.scale.on('enterfullscreen', () => {
+    try { screen.orientation?.lock?.('landscape').catch(() => {}); } catch (_) { /* unsupported */ }
+    [100, 400].forEach((ms) => setTimeout(() => game.scale.refresh(), ms));
+  });
+  game.scale.on('leavefullscreen', () => setTimeout(() => game.scale.refresh(), 100));
+}
+
+/** Should we show the iPhone "Add to Home Screen" tip? */
+export const needsHomeScreenTip = () => isIOS && !isStandalone;

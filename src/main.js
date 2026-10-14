@@ -6,7 +6,7 @@ import './style.css';
 import { GAME } from './config.js';
 import { Audio } from './systems/audio.js';
 import { FilmFX } from './systems/fx.js';
-import { installMobileGuards, initRotateScreen } from './systems/mobile.js';
+import { installMobileGuards, initRotateScreen, installOrientationLock } from './systems/mobile.js';
 
 import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
@@ -42,4 +42,5 @@ const game = new Phaser.Game({
 });
 
 initRotateScreen(game);
+installOrientationLock(game);
 window.__game = game; // handy for debugging in the console

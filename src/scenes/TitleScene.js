@@ -9,6 +9,7 @@ import { Audio } from '../systems/audio.js';
 import { Save } from '../systems/save.js';
 import { Input } from '../systems/input.js';
 import { applyFilm } from '../systems/fx.js';
+import { goFullscreen, isTouch, needsHomeScreenTip } from '../systems/mobile.js';
 import { headText, bodyText, signButton, iconButton, goTo, fadeIn } from '../systems/ui.js';
 import titleSong from '../audio/music/title.js';
 
@@ -222,6 +223,9 @@ export default class TitleScene extends Phaser.Scene {
   start(instant = false) {
     if (this.started) return;
     this.started = true;
+    // On phones, the first tap also goes fullscreen (where the browser allows it).
+    if (!instant && isTouch) goFullscreen(this);
+    if (needsHomeScreenTip() && !Save.data.homeTipDismissed) this.time.delayedCall(instant ? 300 : 1400, () => this.showHomeScreenTip());
     Audio.onUnlock(() => {
       Audio.playMusic(titleSong, { fade: instant ? 1.2 : 2.5 });
       Audio.playAmbience('title');
@@ -254,6 +258,26 @@ export default class TitleScene extends Phaser.Scene {
     });
     post.setScale(1, 0);
     this.tweens.add({ targets: post, scaleY: 1, duration: 350, ease: 'Quad.Out' });
+  }
+
+  /** iPhone can't go fullscreen from a web page; explain the Home Screen trick. */
+  showHomeScreenTip() {
+    const c = this.add.container(W / 2, H - 14).setDepth(80);
+    const msg = bodyText(this, 0, 0, 'iPhone tip: tap Share, then "Add to Home Screen" to play fullscreen.', 16, P.cream, { ox: 0.5, oy: 0.5 });
+    const bw = msg.width + 34;
+    const bg = this.add.rectangle(0, 0, bw, 18, hexNum(P.ink), 0.85).setStrokeStyle(1, hexNum(P.btc));
+    const x = headText(this, bw / 2 - 9, 0, 'X', 8, P.btc1);
+    msg.x = -8;
+    c.add([bg, msg, x]);
+    c.setSize(bw, 18).setInteractive({ useHandCursor: true });
+    c.on('pointerup', () => {
+      Save.data.homeTipDismissed = true;
+      Save.persist();
+      Audio.sfx('ui_back');
+      this.tweens.add({ targets: c, alpha: 0, y: H + 10, duration: 250, onComplete: () => c.destroy() });
+    });
+    c.setAlpha(0).y = H + 10;
+    this.tweens.add({ targets: c, alpha: 1, y: H - 14, duration: 400, ease: 'Back.Out' });
   }
 
   play(cont) {
