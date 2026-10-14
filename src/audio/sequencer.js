@@ -95,7 +95,8 @@ export class SongPlayer {
   start(t, fade) {
     this.nextTime = t;
     this.out.gain.setValueAtTime(0.0001, t);
-    this.out.gain.linearRampToValueAtTime(1, t + Math.max(0.05, fade));
+    // per-song loudness trim (measured so all tracks sit at a similar level)
+    this.out.gain.linearRampToValueAtTime(this.song.master ?? 1, t + Math.max(0.05, fade));
     this.e.setDelayTime(this.song.delay ?? this.stepDur * 3);
     this.running = true;
   }

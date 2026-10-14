@@ -185,7 +185,7 @@ export default class Chapter4Scene extends Phaser.Scene {
       { who: 'ben', mood: 'shocked', text: 'Hangar 18. Zeus... is that what I think it is under that tarp?' },
       { who: 'zeus', mood: 'alert', text: '*ears straight up*' },
       { who: 'radio', mood: 'stern', text: '"Motion in Hangar 18. All units respond. ETA ninety seconds."' },
-      { who: 'ben', mood: 'angry', text: 'Ninety seconds?! Okay. Three blast doors between us and the lift down. Let\'s hack.' },
+      { who: 'ben', mood: 'angry', text: 'Ninety seconds?! No sign of Satoshi up here... but there\'s a lift down to the labs. Three blast doors in the way. Let\'s hack.' },
     ]);
     this.startSection(0);
     this.busy = false;

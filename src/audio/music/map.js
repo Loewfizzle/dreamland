@@ -5,6 +5,7 @@
 // ============================================================================
 export default {
   name: 'map',
+  master: 0.91,          // loudness trim (see audio mix notes in README)
   bpm: 90,
   swing: 0.12,
   layers: {

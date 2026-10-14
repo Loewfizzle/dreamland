@@ -208,7 +208,7 @@ export default class Chapter5Scene extends Phaser.Scene {
           this.add.image(x, y - 32, 'glow_soft').setScale(0.6, 0.85).setTint(hexNum(P.green2)).setAlpha(0.35).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH.EMISSIVE - 1);
           this.add.particles(x, y - 12, 'px1', {
             x: { min: -8, max: 8 }, lifespan: 1600, speedY: { min: -26, max: -14 }, alpha: { start: 0.8, end: 0 },
-            tint: hexNum(P.green0), frequency: 220, blendMode: 'ADD',
+            tint: hexNum(P.green0), frequency: 420, blendMode: 'ADD',
           }).setDepth(DEPTH.EMISSIVE);
         }
       } else if (d.type === 'rack') {
@@ -242,7 +242,7 @@ export default class Chapter5Scene extends Phaser.Scene {
       // dust motes drifting through the beam
       this.add.particles(x, y + 20, 'px1', {
         x: { min: -24, max: 24 }, y: { min: 0, max: len - 30 }, lifespan: 3000, speedX: { min: -4, max: 4 }, speedY: { min: -3, max: 5 },
-        alpha: { onEmit: () => 0, onUpdate: (p, k, t) => Math.sin(t * Math.PI) * 0.5 }, tint: 0xffe8c0, frequency: 260, blendMode: 'ADD',
+        alpha: { onEmit: () => 0, onUpdate: (p, k, t) => Math.sin(t * Math.PI) * 0.5 }, tint: 0xffe8c0, frequency: 520, blendMode: 'ADD',
       }).setDepth(DEPTH.EMISSIVE);
     }
   }
@@ -515,10 +515,24 @@ export default class Chapter5Scene extends Phaser.Scene {
       { who: 'ben', mood: 'shocked', text: 'My RIG! Zeus, LOOK! They didn\'t even dust it!' },
       { who: 'zeus', mood: 'excited', text: '*BOOF!*' },
       { who: 'ben', mood: 'talk', text: 'Wait... it\'s still running. That signal from the blockchain... it\'s decoding.' },
-      { who: 'ben', mood: 'shocked', text: '"IF YOU ARE READING THIS: I AM SATOSHI. THEY HOLD ME IN HANGAR 18. PLEASE. I JUST WANT TO GO HOME."' },
+      { who: 'ben', mood: 'shocked', text: '"IF YOU ARE READING THIS: I AM SATOSHI. CONTAINMENT CELL 7. THE SHIP IN HANGAR 18 IS MINE. I JUST WANT TO GO HOME."' },
       { who: 'ben', mood: 'smug', text: 'Satoshi Nakamoto... is an ALIEN?! I KNEW it! I didn\'t KNOW it, but I KNEW it!' },
       { who: 'zeus', mood: 'alert', text: '*ears perk up* ...grrrr.' },
-      { who: 'ben', mood: 'angry', text: 'New plan, buddy. We\'re not just taking the rig back. We\'re breaking Satoshi OUT.' },
+    ]);
+    // Cell 7 is right here: Zeus sniffs out the release, the door hisses open
+    Audio.sfx('door');
+    shake(this, 200, 0.005);
+    const sat = this.add.sprite(this.rig.x + 52, this.rig.y, 'satoshi').setOrigin(0.5, 1).setDepth(DEPTH.BEN).setFlipX(true).setAlpha(0).play('satoshi_idle');
+    this.lighting.add({ follow: sat, oy: -16, radius: 60, color: 0x5dff9a, intensity: 0.8 });
+    this.tweens.add({ targets: sat, alpha: 1, x: sat.x - 14, duration: 1200 });
+    await this.wait(1400);
+    await Dialogue.play(this, [
+      { who: 'satoshi', mood: 'sad', text: 'You... heard my block? Someone finally heard it.' },
+      { who: 'ben', mood: 'shocked', text: 'Satoshi?! I have SO many questions. Was it really you? Why proof of WORK? Do you like pie?!' },
+      { who: 'satoshi', mood: 'happy', text: 'Yes. Because work is honest. And... apple, please.' },
+      { who: 'satoshi', mood: 'talk', text: 'My ship is in the hangar above us. If we reach it, I can finally go home. But HE will come for us.' },
+      { who: 'ben', mood: 'angry', text: 'Then let\'s go. Zeus, grab the rig. We\'re breaking Satoshi OUT.' },
+      { who: 'zeus', mood: 'excited', text: '*BOOF!*' },
     ]);
     this.finishChapter();
   }

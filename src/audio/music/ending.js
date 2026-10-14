@@ -6,6 +6,7 @@
 // ============================================================================
 export default {
   name: 'ending',
+  master: 1.46,          // loudness trim (see audio mix notes in README)
   bpm: 92,
   swing: 0.06,
   layers: {

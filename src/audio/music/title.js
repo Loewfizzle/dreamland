@@ -5,6 +5,7 @@
 // ============================================================================
 export default {
   name: 'title',
+  master: 1.32,          // loudness trim (see audio mix notes in README)
   bpm: 86,
   swing: 0.04,
   layers: {

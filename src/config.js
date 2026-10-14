@@ -247,28 +247,29 @@ export const ECONOMY = {
 };
 
 // ---------------------------------------------------------------------------
-// THE VAN shop. A full playthrough earns roughly 7–9k sats, enough for most
-// (but not all) of this. `prices` has one entry per upgrade level.
+// THE VAN shop. A typical playthrough earns ~6–10k sats; everything costs ~8.8k,
+// so most (but not all) of it is affordable without finding every golden bitcoin.
+// `prices` has one entry per upgrade level.
 // ---------------------------------------------------------------------------
 export const SHOP = {
   upgrades: [
-    { id: 'benHealth',  who: 'ben',  name: 'EXTRA HEART',     desc: '+1 max heart. Hot dogs for breakfast.', prices: [150, 320, 520] },
-    { id: 'benSpeed',   who: 'ben',  name: 'COMFY SNEAKERS',  desc: '+7% run speed per level.',              prices: [120, 280] },
-    { id: 'blaster',    who: 'ben',  name: 'BLASTER MOD',     desc: '+1 damage per level. Faster firing.',   prices: [220, 420, 680] },
-    { id: 'zeusSniff',  who: 'zeus', name: 'SUPER SNIFFER',   desc: '+40 sniff radius per level.',           prices: [100, 240] },
-    { id: 'zeusBark',   who: 'zeus', name: 'BIG BARK',        desc: '+0.7s guard stun per level.',           prices: [100, 240] },
-    { id: 'zeusDig',    who: 'zeus', name: 'POWER PAWS',      desc: 'Zeus digs 35% faster per level.',       prices: [80, 180] },
-    { id: 'zeusTackle', who: 'zeus', name: 'ZOOMIES',         desc: '-25% tackle cooldown per level.',       prices: [160, 320] },
+    { id: 'benHealth',  who: 'ben',  name: 'EXTRA HEART',     desc: '+1 max heart. Hot dogs for breakfast.', prices: [230, 480, 780] },
+    { id: 'benSpeed',   who: 'ben',  name: 'COMFY SNEAKERS',  desc: '+7% run speed per level.',              prices: [180, 420] },
+    { id: 'blaster',    who: 'ben',  name: 'BLASTER MOD',     desc: '+1 damage per level. Faster firing.',   prices: [330, 630, 1020] },
+    { id: 'zeusSniff',  who: 'zeus', name: 'SUPER SNIFFER',   desc: '+40 sniff radius per level.',           prices: [150, 360] },
+    { id: 'zeusBark',   who: 'zeus', name: 'BIG BARK',        desc: '+0.7s guard stun per level.',           prices: [150, 360] },
+    { id: 'zeusDig',    who: 'zeus', name: 'POWER PAWS',      desc: 'Zeus digs 35% faster per level.',       prices: [120, 270] },
+    { id: 'zeusTackle', who: 'zeus', name: 'ZOOMIES',         desc: '-25% tackle cooldown per level.',       prices: [240, 480] },
   ],
   cosmetics: [
-    { id: 'bandana_red',  slot: 'bandana', name: 'RED BANDANA',    color: '#d63a3a', price: 80 },
-    { id: 'bandana_cyan', slot: 'bandana', name: 'ALIEN BANDANA',  color: '#3cf2ff', price: 90 },
-    { id: 'bandana_btc',  slot: 'bandana', name: 'BTC BANDANA',      color: '#f7931a', price: 140 },
-    { id: 'cap_foil',     slot: 'cap',     name: 'FULL FOIL CAP',  color: '#c8d4e0', dark: '#8a98aa', price: 120 },
-    { id: 'cap_green',    slot: 'cap',     name: 'GREY-GREEN CAP', color: '#5dbf6a', dark: '#2f7a40', price: 120 },
-    { id: 'cap_gold',     slot: 'cap',     name: 'SATOSHI GOLD',   color: '#f5c060', dark: '#b87828', price: 260 },
-    { id: 'van_sunset',   slot: 'van',     name: 'SUNSET PAINT',   paint: 'sunset', price: 260 },
-    { id: 'van_alien',    slot: 'van',     name: 'ALIEN PAINT',    paint: 'alien', price: 320 },
-    { id: 'van_stealth',  slot: 'van',     name: 'STEALTH PAINT',  paint: 'stealth', price: 320 },
+    { id: 'bandana_red',  slot: 'bandana', name: 'RED BANDANA',    color: '#d63a3a', price: 120 },
+    { id: 'bandana_cyan', slot: 'bandana', name: 'ALIEN BANDANA',  color: '#3cf2ff', price: 140 },
+    { id: 'bandana_btc',  slot: 'bandana', name: 'BTC BANDANA',      color: '#f7931a', price: 210 },
+    { id: 'cap_foil',     slot: 'cap',     name: 'FULL FOIL CAP',  color: '#c8d4e0', dark: '#8a98aa', price: 180 },
+    { id: 'cap_green',    slot: 'cap',     name: 'GREY-GREEN CAP', color: '#5dbf6a', dark: '#2f7a40', price: 180 },
+    { id: 'cap_gold',     slot: 'cap',     name: 'SATOSHI GOLD',   color: '#f5c060', dark: '#b87828', price: 390 },
+    { id: 'van_sunset',   slot: 'van',     name: 'SUNSET PAINT',   paint: 'sunset', price: 390 },
+    { id: 'van_alien',    slot: 'van',     name: 'ALIEN PAINT',    paint: 'alien', price: 480 },
+    { id: 'van_stealth',  slot: 'van',     name: 'STEALTH PAINT',  paint: 'stealth', price: 480 },
   ],
 };

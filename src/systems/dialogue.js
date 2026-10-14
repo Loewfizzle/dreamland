@@ -82,13 +82,14 @@ export const Dialogue = {
       Input.configure({ mode: 'tap' });
 
       const root = scene.add.container(0, 0).setScrollFactor(0).setDepth(depth);
-      const boxY = H - 88;
+      // box at the TOP so characters standing on the ground stay visible; letterbox bar at the bottom
+      const boxY = 18;
       // letterbox bars for a cinematic feel
-      const barTop = scene.add.rectangle(0, -24, W, 24, 0x000000).setOrigin(0);
+      const barTop = scene.add.rectangle(0, H, W, 24, 0x000000).setOrigin(0);
       root.add(barTop);
-      scene.tweens.add({ targets: barTop, y: 0, duration: 250, ease: 'Quad.Out' });
+      scene.tweens.add({ targets: barTop, y: H - 24, duration: 250, ease: 'Quad.Out' });
 
-      const box = scene.add.container(0, H + 10);
+      const box = scene.add.container(0, -100);
       const bg = scene.add.graphics();
       const draw = (accent) => {
         bg.clear();
@@ -111,7 +112,7 @@ export const Dialogue = {
       scene.tweens.add({ targets: box, y: boxY, duration: 280, ease: 'Back.Out' });
 
       // SKIP button
-      const skip = headText(scene, W - 14, 12, 'SKIP >>', 8, P.cream, { ox: 1 }).setInteractive({ useHandCursor: true });
+      const skip = headText(scene, 14, H - 12, 'SKIP >>', 8, P.cream, { ox: 0 }).setInteractive({ useHandCursor: true });
       skip.setAlpha(0.8);
       root.add(skip);
       pinToScreen(root);   // so the SKIP button is tappable in scrolling scenes
@@ -186,8 +187,8 @@ export const Dialogue = {
         timer.remove();
         scene.input.off('pointerup', onTap);
         Input.events.off('press', onPress);
-        scene.tweens.add({ targets: box, y: H + 10, duration: 200, ease: 'Quad.In' });
-        scene.tweens.add({ targets: barTop, y: -24, duration: 200 });
+        scene.tweens.add({ targets: box, y: -100, duration: 200, ease: 'Quad.In' });
+        scene.tweens.add({ targets: barTop, y: H, duration: 200 });
         scene.tweens.add({ targets: skip, alpha: 0, duration: 150 });
         scene.time.delayedCall(220, () => {
           root.destroy();

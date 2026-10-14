@@ -187,9 +187,8 @@ export default class Chapter6Scene extends Phaser.Scene {
     [card, card2].forEach((c) => { c.setAlpha(0); this.tweens.add({ targets: c, alpha: 1, duration: 600, hold: 1600, yoyo: true, onComplete: () => c.destroy() }); });
     await this.wait(1800);
     await Dialogue.play(this, [
-      { who: 'satoshi', mood: 'happy', text: 'Ben-human. Zeus-dog. You came. Fifteen years I waited for someone to read my block.' },
-      { who: 'ben', mood: 'shocked', text: 'Satoshi?! I have SO many questions. Was it you who— why proof of WORK? Do you like pie?!' },
-      { who: 'satoshi', mood: 'talk', text: 'Later. My ship needs time to charge its launch drive. And HE is coming.' },
+      { who: 'ben', mood: 'happy', text: 'WE\'RE OUT! We stole a UFO and a hover-sled from AREA 51! Zeus, nobody back home is gonna believe this.' },
+      { who: 'satoshi', mood: 'talk', text: 'Ben-human. My ship needs time to charge its launch drive. Stay close. HE is coming.' },
     ]);
     Audio.sfx('ufo_warble', { volume: 0.8 });
     this.hum.set({ volume: 0.55 });

@@ -6,6 +6,7 @@
 // ============================================================================
 export default {
   name: 'ch2',
+  master: 1.0,          // loudness trim (see audio mix notes in README)
   bpm: 96,
   swing: 0.2,
   layers: {

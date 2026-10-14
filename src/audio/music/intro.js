@@ -8,6 +8,7 @@
 // ============================================================================
 export default {
   name: 'intro',
+  master: 1.6,          // loudness trim (see audio mix notes in README)
   bpm: 84,
   swing: 0,
   layers: {

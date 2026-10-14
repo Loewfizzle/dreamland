@@ -301,6 +301,10 @@ export default class Chapter1Scene extends Phaser.Scene {
     this.position = Math.min(this.position + this.speed * dt, this.trackLength - this.playerZ - SEG * (CH1.DRAW_DISTANCE + 2));
 
     this.updateCars(dt, playerSeg);
+    // adaptive music: chase layers kick in while an SUV is close
+    const pz = this.position + this.playerZ;
+    const chase = !this.finished && this.cars.some((c) => Math.abs(c.z - pz) < SEG * 60);
+    if (chase !== this.chaseOn) { this.chaseOn = chase; Audio.setLayer('drums2', chase ? 1 : 0, chase ? 0.4 : 2); Audio.setLayer('stab', chase ? 1 : 0, chase ? 0.4 : 2); }
     this.updateCows(dt, playerSeg);
     this.checkCollisions(playerSeg, time);
     this.checkTriggers(playerSeg.index);
